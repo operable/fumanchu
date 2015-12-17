@@ -1,2 +1,2 @@
-defmodule Fumanchu do
+defmodule FuManchu do
 end

@@ -1,8 +1,4 @@
-defmodule FumanchuTest do
+defmodule FuManchuTest do
   use ExUnit.Case
-  doctest Fumanchu
-
-  test "the truth" do
-    assert 1 + 1 == 2
-  end
+  doctest FuManchu
 end

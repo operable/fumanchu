@@ -1,0 +1,2 @@
+defmodule Fumanchu do
+end

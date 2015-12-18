@@ -14,16 +14,16 @@ defmodule FuManchu.LexerTest do
     assert {:ok, [text: 'Hello ', variable: 'planet']} = tokens
   end
 
-  test "lexing an escaped variable" do
+  test "lexing an unescaped variable" do
     source = "Hello {{{planet}}}"
     tokens = Lexer.tokenize(source)
-    assert {:ok, [text: 'Hello ', escaped_variable: 'planet']} = tokens
+    assert {:ok, [text: 'Hello ', unescaped_variable: 'planet']} = tokens
   end
 
-  test "lexing an escaped variable (& prefix)" do
+  test "lexing an unescaped variable (& prefix)" do
     source = "Hello {{& planet}}"
     tokens = Lexer.tokenize(source)
-    assert {:ok, [text: 'Hello ', escaped_variable: 'planet']} = tokens
+    assert {:ok, [text: 'Hello ', unescaped_variable: 'planet']} = tokens
   end
 
   test "lexing a section" do

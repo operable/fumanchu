@@ -8,11 +8,11 @@ defmodule FuManchu.Lexer do
   end
 
   defp tokenize('{{{' ++ t, buffer, acc) do
-    tokenize_escaped_tag(:escaped_variable, t, buffer, acc)
+    tokenize_unescaped_tag(:unescaped_variable, t, buffer, acc)
   end
 
   defp tokenize('{{& ' ++ t, buffer, acc) do
-    tokenize_tag(:escaped_variable, t, buffer, acc)
+    tokenize_tag(:unescaped_variable, t, buffer, acc)
   end
 
   defp tokenize('{{#' ++ t, buffer, acc) do
@@ -48,8 +48,8 @@ defmodule FuManchu.Lexer do
     {:ok, Enum.reverse(acc)}
   end
 
-  def tokenize_escaped_tag(type, t, buffer, acc) do
-    case escaped_tag(t, []) do
+  def tokenize_unescaped_tag(type, t, buffer, acc) do
+    case unescaped_tag(t, []) do
       {:ok, tag, rest} ->
         acc = tokenize_text(buffer, acc)
         token = {type, Enum.reverse(tag)}
@@ -79,15 +79,15 @@ defmodule FuManchu.Lexer do
     [token|acc]
   end
 
-  def escaped_tag('}}}' ++ t, buffer) do
+  def unescaped_tag('}}}' ++ t, buffer) do
     {:ok, buffer, t}
   end
 
-  def escaped_tag([h|t], buffer) do
-    escaped_tag(t, [h|buffer])
+  def unescaped_tag([h|t], buffer) do
+    unescaped_tag(t, [h|buffer])
   end
 
-  def escaped_tag([], _) do
+  def unescaped_tag([], _) do
     {:error, "Missing token '}}}'"}
   end
 

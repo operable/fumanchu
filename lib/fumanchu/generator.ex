@@ -4,6 +4,8 @@ defmodule FuManchu.Generator do
 
     quote do
       fn bindings ->
+        import FuManchu.Util
+        bindings = stringify_keys(bindings)
         Enum.join(unquote(elements))
       end
     end

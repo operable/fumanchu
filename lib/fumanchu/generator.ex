@@ -17,13 +17,13 @@ defmodule FuManchu.Generator do
 
   def generate({:variable, '.'}) do
     quote do
-      bindings
+      encode_html_entities(bindings)
     end
   end
 
   def generate({:variable, variable}) do
     quote do
-      Map.get(bindings, unquote(to_key(variable)), "")
+      encode_html_entities(Map.get(bindings, unquote(to_key(variable)), ""))
     end
   end
 

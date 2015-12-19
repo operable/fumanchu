@@ -25,4 +25,10 @@ defmodule FuManchu.UtilTest do
     assert [%{"foo" => "bar"},
             %{"baz" => :qux}] = actual
   end
+
+  test "encoding a string including html entities" do
+    actual  = Util.encode_html_entities("& \" < >")
+
+    assert "&amp; &quot; &lt; &gt;" == actual
+  end
 end

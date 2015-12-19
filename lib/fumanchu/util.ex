@@ -17,4 +17,25 @@ defmodule FuManchu.Util do
     do: Enum.map(list, &stringify_value/1)
   defp stringify_value(scalar),
     do: scalar
+
+  def encode_html_entities(bin) when is_binary(bin),
+    do: encode_html_entities(String.to_char_list(bin), [])
+  def encode_html_entities(char_list) when is_list(char_list),
+    do: encode_html_entities(char_list, [])
+  def encode_html_entities(scalar),
+    do: scalar
+
+  # TODO: Support all html entities
+  defp encode_html_entities([], acc),
+    do: acc |> Enum.reverse |> to_string
+  defp encode_html_entities('&' ++ t, acc),
+    do: encode_html_entities(t, ['&amp;'|acc])
+  defp encode_html_entities('"' ++ t, acc),
+    do: encode_html_entities(t, ['&quot;'|acc])
+  defp encode_html_entities('<' ++ t, acc),
+    do: encode_html_entities(t, ['&lt;'|acc])
+  defp encode_html_entities('>' ++ t, acc),
+    do: encode_html_entities(t, ['&gt;'|acc])
+  defp encode_html_entities([h|t], acc),
+    do: encode_html_entities(t, [h|acc])
 end

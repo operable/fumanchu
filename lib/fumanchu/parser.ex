@@ -35,6 +35,10 @@ defmodule FuManchu.Parser do
     {{:section, name, Enum.reverse(acc)}, t}
   end
 
+  def parse([{:comment, _}|t], acc) do
+    parse(t, acc)
+  end
+
   def parse([h|t], acc) do
     parse(t, [h|acc])
   end

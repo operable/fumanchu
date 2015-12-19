@@ -27,6 +27,18 @@ defmodule FuManchu.Generator do
     end
   end
 
+  def generate({:unescaped_variable, '.'}) do
+    quote do
+      bindings
+    end
+  end
+
+  def generate({:unescaped_variable, variable}) do
+    quote do
+      Map.get(bindings, unquote(to_key(variable)), "")
+    end
+  end
+
   def generate({:section, name, children}) do
     elements = Enum.map(children, &generate/1)
 

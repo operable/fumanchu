@@ -44,13 +44,48 @@ defmodule FuManchu.Generator do
       end
 
       case value do
+        [] ->
+          ""
+        %{} ->
+          ""
+        false ->
+          ""
+        true ->
+          unquote(elements)
         list when is_list(list) ->
           Enum.map(bindings, fn bindings ->
             unquote(elements)
           end)
-        true ->
+      end
+    end
+  end
+
+  def generate({:inverted_section, name, children}) do
+    elements = Enum.map(children, &generate/1)
+
+    quote do
+      name = unquote(to_key(name))
+      value = Map.get(bindings, name, false)
+
+      bindings = case value do
+        map when is_map(map) ->
+          Map.put(bindings, name, map)
+        list when is_list(list) ->
+          list
+        _ ->
+          bindings
+      end
+
+      case value do
+        [] ->
+          unquote(elements)
+        %{} ->
           unquote(elements)
         false ->
+          unquote(elements)
+        true ->
+          ""
+        list when is_list(list) ->
           ""
       end
     end

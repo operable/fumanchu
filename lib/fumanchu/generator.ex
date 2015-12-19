@@ -3,7 +3,7 @@ defmodule FuManchu.Generator do
     elements = Enum.map(children, &generate/1)
 
     quote do
-      fn assigns ->
+      fn bindings ->
         Enum.join(unquote(elements))
       end
     end
@@ -15,13 +15,13 @@ defmodule FuManchu.Generator do
 
   def generate({:variable, '.'}) do
     quote do
-      assigns
+      bindings
     end
   end
 
   def generate({:variable, variable}) do
     quote do
-      Map.get(assigns, unquote(to_key(variable)), "")
+      Map.get(bindings, unquote(to_key(variable)), "")
     end
   end
 
@@ -30,20 +30,20 @@ defmodule FuManchu.Generator do
 
     quote do
       name = unquote(to_key(name))
-      value = Map.get(assigns, name, false)
+      value = Map.get(bindings, name, false)
 
-      assigns = case value do
+      bindings = case value do
         map when is_map(map) ->
-          Map.put(assigns, name, map)
+          Map.put(bindings, name, map)
         list when is_list(list) ->
           list
         _ ->
-          assigns
+          bindings
       end
 
       case value do
         list when is_list(list) ->
-          Enum.map(assigns, fn assigns ->
+          Enum.map(bindings, fn bindings ->
             unquote(elements)
           end)
         true ->

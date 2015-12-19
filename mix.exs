@@ -15,6 +15,6 @@ defmodule FuManchu.Mixfile do
   end
 
   defp deps do
-    []
+    [{:poison, "~> 1.5.0", only: :test}]
   end
 end

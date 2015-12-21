@@ -50,8 +50,6 @@ defmodule FuManchu.Generator do
           ""
         true ->
           render.(context)
-        %{} ->
-          ""
         map when is_map(map) ->
           render.(Map.merge(context, map))
         [] ->
@@ -81,7 +79,7 @@ defmodule FuManchu.Generator do
         true ->
           ""
         %{} ->
-          render.(context)
+          ""
         map when is_map(map) ->
           ""
         [] ->

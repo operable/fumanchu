@@ -13,11 +13,11 @@ defmodule FuManchu.Generator do
     end
   end
 
-  def generate({:text, text}) do
+  def generate({:text, text, _line}) do
     text
   end
 
-  def generate({:variable, variable}) do
+  def generate({:variable, variable, _line}) do
     quote do
       context
       |> access(unquote(variable))
@@ -25,13 +25,13 @@ defmodule FuManchu.Generator do
     end
   end
 
-  def generate({:unescaped_variable, variable}) do
+  def generate({:unescaped_variable, variable, _line}) do
     quote do
       access(context, unquote(variable))
     end
   end
 
-  def generate({:section, name, children}) do
+  def generate({:section, name, _line, children}) do
     elements = Enum.map(children, &generate/1)
 
     quote do
@@ -61,7 +61,7 @@ defmodule FuManchu.Generator do
     end
   end
 
-  def generate({:inverted_section, name, children}) do
+  def generate({:inverted_section, name, _line, children}) do
     elements = Enum.map(children, &generate/1)
 
     quote do

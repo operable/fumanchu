@@ -24,6 +24,13 @@ defmodule FuManchu.SpecTest do
 
       data = Macro.escape(data)
 
+      basename = Path.basename(spec_path, ".json")
+      type = String.lstrip(basename, ?~)
+      optional = String.starts_with?(basename, "~")
+
+      @tag type: type
+      @tag optional: optional
+
       test "#{name} - #{desc}" do
         actual = FuManchu.render(unquote(template), unquote(data))
         assert actual == unquote(expected)

@@ -55,7 +55,7 @@ defmodule FuManchu.Generator do
           ""
         list when is_list(list) ->
           Enum.map(list, fn item ->
-            render.(Map.put(context, name, item))
+            render.(item)
           end)
       end
     end

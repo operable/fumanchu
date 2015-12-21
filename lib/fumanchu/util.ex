@@ -38,4 +38,12 @@ defmodule FuManchu.Util do
     do: encode_html_entities(t, ['&gt;'|acc])
   defp encode_html_entities([h|t], acc),
     do: encode_html_entities(t, [h|acc])
+
+
+  def access(context, key),
+    do: access(context, key, "")
+  def access(context, ".", _default),
+    do: context
+  def access(context, name, default),
+    do: Map.get(context, name, default)
 end

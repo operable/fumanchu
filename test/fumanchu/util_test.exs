@@ -31,4 +31,12 @@ defmodule FuManchu.UtilTest do
 
     assert "&amp; &quot; &lt; &gt;" == actual
   end
+
+  test "access a map key" do
+    assert Util.access(%{"a" => "b"}, "a") == "b"
+  end
+
+  test "access current context" do
+    assert Util.access(%{"a" => "b"}, ".") == %{"a" => "b"}
+  end
 end

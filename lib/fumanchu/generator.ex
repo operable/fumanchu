@@ -3,10 +3,12 @@ defmodule FuManchu.Generator do
     elements = Enum.map(children, &generate/1)
 
     quote do
-      fn bindings ->
+      fn context ->
         import FuManchu.Util
-        bindings = stringify_keys(bindings)
-        Enum.join(unquote(elements))
+
+        fn context ->
+          Enum.join(unquote(elements))
+        end.(stringify_keys(context))
       end
     end
   end
@@ -15,27 +17,17 @@ defmodule FuManchu.Generator do
     text
   end
 
-  def generate({:variable, '.'}) do
-    quote do
-      encode_html_entities(bindings)
-    end
-  end
-
   def generate({:variable, variable}) do
     quote do
-      encode_html_entities(Map.get(bindings, unquote(to_key(variable)), ""))
-    end
-  end
-
-  def generate({:unescaped_variable, '.'}) do
-    quote do
-      bindings
+      context
+      |> access(unquote(variable))
+      |> encode_html_entities
     end
   end
 
   def generate({:unescaped_variable, variable}) do
     quote do
-      Map.get(bindings, unquote(to_key(variable)), "")
+      access(context, unquote(variable))
     end
   end
 
@@ -43,30 +35,27 @@ defmodule FuManchu.Generator do
     elements = Enum.map(children, &generate/1)
 
     quote do
-      name = unquote(to_key(name))
-      value = Map.get(bindings, name, false)
-
-      bindings = case value do
-        map when is_map(map) ->
-          Map.put(bindings, name, map)
-        list when is_list(list) ->
-          list
-        _ ->
-          bindings
+      render = fn context ->
+        unquote(elements)
       end
 
+      name = unquote(name)
+      value = access(context, name, false)
+
       case value do
-        [] ->
-          ""
-        %{} ->
-          ""
         false ->
           ""
         true ->
-          unquote(elements)
+          render.(context)
+        %{} ->
+          ""
+        map when is_map(map) ->
+          render.(Map.merge(context, map))
+        [] ->
+          ""
         list when is_list(list) ->
-          Enum.map(bindings, fn bindings ->
-            unquote(elements)
+          Enum.map(list, fn item ->
+            render.(Map.put(context, name, item))
           end)
       end
     end
@@ -76,35 +65,27 @@ defmodule FuManchu.Generator do
     elements = Enum.map(children, &generate/1)
 
     quote do
-      name = unquote(to_key(name))
-      value = Map.get(bindings, name, false)
-
-      bindings = case value do
-        map when is_map(map) ->
-          Map.put(bindings, name, map)
-        list when is_list(list) ->
-          list
-        _ ->
-          bindings
+      render = fn context ->
+        unquote(elements)
       end
 
+      name = unquote(name)
+      value = access(context, name, false)
+
       case value do
-        [] ->
-          unquote(elements)
-        %{} ->
-          unquote(elements)
         false ->
-          unquote(elements)
+          render.(context)
         true ->
           ""
+        %{} ->
+          render.(context)
+        map when is_map(map) ->
+          ""
+        [] ->
+          render.(context)
         list when is_list(list) ->
           ""
       end
     end
-  end
-
-  def to_key(char_list) do
-    char_list
-    |> to_string
   end
 end

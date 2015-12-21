@@ -1,7 +1,7 @@
 defmodule FuManchu do
   alias FuManchu.Compiler
 
-  def render(source, bindings \\ %{}) do
-    Compiler.compile(source).(bindings)
+  def render(source, context \\ %{}) do
+    Compiler.compile(source).(context)
   end
 end

@@ -2,56 +2,51 @@ defmodule FuManchu.ParserTest do
   use ExUnit.Case, async: true
   alias FuManchu.Parser
 
-  test "parsing text" do
-    ast = Parser.parse([text: 'Hello World!'])
-    assert {:ok, [text: 'Hello World!']} = ast
-  end
+  test "parses tokens from a typical template" do
+    tokens = [{:text, "Hello ", 1},
+              {:tag_open, "{{", 1},
+              {:tag_key, "name", 1},
+              {:tag_close, "}}", 1},
+              {:text, "\n", 1},
 
-  test "parsing a variable" do
-    ast = Parser.parse([text: 'Hello ', variable: 'planet'])
-    assert {:ok, [text: 'Hello ', variable: 'planet']} = ast
-  end
+              {:text, "You have just won ", 2},
+              {:tag_open, "{{", 2},
+              {:tag_key, "value", 2},
+              {:tag_close, "}}", 2},
+              {:text, " dollars!\n", 2},
 
-  test "parsing a section" do
-    ast = Parser.parse([text: 'Shown.\n',
-                        section_begin: 'person',
-                        text: '\n  Never shown!\n',
-                        section_end: 'person',
-                        text: '\n'])
-    assert {:ok, [{:text, 'Shown.\n'},
-                  {:section, 'person', [
-                    {:text, '\n  Never shown!\n'}]},
-                  {:text, '\n'}]} = ast
-  end
+              {:tag_open, "{{", 3},
+              {:tag_type, "#", 3},
+              {:tag_key, "in_ca", 3},
+              {:tag_close, "}}", 3},
+              {:text, "\n", 3},
 
-  test "parsing a section containing a variable" do
-    ast = Parser.parse([section_begin: 'repo',
-                        text: '\n  <b>',
-                        variable: 'name',
-                        text: '</b>\n',
-                        section_end: 'repo',
-                        text: '\n'])
-    assert {:ok, [{:section, 'repo', [
-                    {:text, '\n  <b>'},
-                    {:variable, 'name'},
-                    {:text, '</b>\n'}]},
-                  {:text, '\n'}]} = ast
-  end
+              {:text, "Well, ", 4},
+              {:tag_open, "{{", 4},
+              {:tag_key, "taxed_value", 4},
+              {:tag_close, "}}", 4},
+              {:text, " dollars, after taxes.\n", 4},
 
-  test "parsing nested sections" do
-    ast = Parser.parse([section_begin: 'repo',
-                        text: '\n  <b>',
-                        section_begin: 'name',
-                        text: 'fumanchu',
-                        section_end: 'name',
-                        text: '</b>\n',
-                        section_end: 'repo',
-                        text: '\n'])
-    assert {:ok, [{:section, 'repo', [
-                    {:text, '\n  <b>'},
-                    {:section, 'name', [
-                      {:text, 'fumanchu'}]},
-                    {:text, '</b>\n'}]},
-                  {:text, '\n'}]} = ast
+              {:tag_open, "{{", 5},
+              {:tag_type, "/", 5},
+              {:tag_key, "in_ca", 5},
+              {:tag_close, "}}", 5},
+              {:text, "\n", 5}]
+
+    ast = [{:text, "Hello "},
+           {:variable, "name"},
+           {:text, "\n"},
+           {:text, "You have just won "},
+           {:variable, "value"},
+           {:text, " dollars!\n"},
+           {:section, "in_ca", [
+             {:text, "\n"},
+             {:text, "Well, "},
+             {:variable, "taxed_value"},
+             {:text, " dollars, after taxes.\n"}
+           ]},
+           {:text, "\n"}]
+
+    assert Parser.parse(tokens) == {:ok, ast}
   end
 end

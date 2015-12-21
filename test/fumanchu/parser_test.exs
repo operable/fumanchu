@@ -39,7 +39,7 @@ defmodule FuManchu.ParserTest do
            {:text, "You have just won ", 2},
            {:variable, "value", 2},
            {:text, " dollars!\n", 2},
-           {:section, "in_ca", 5, [
+           {:section, "in_ca", 3, [
              {:text, "\n", 3},
              {:text, "Well, ", 4},
              {:variable, "taxed_value", 4},

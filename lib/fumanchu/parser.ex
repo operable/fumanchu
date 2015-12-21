@@ -8,18 +8,18 @@ defmodule FuManchu.Parser do
     end
   end
 
-  defp parse([{:tag_open, _raw, _line}|t], acc) do
-    {tag, t} = parse_tag(t, [])
-    parse([tag|t], acc)
+  defp parse([{:tag_open, _raw, line}|t], acc) do
+    {{type, key, _line}, t} = parse_tag(t, [])
+    parse([{type, key, line}|t], acc)
   end
 
-  defp parse([{:unescaped_tag_open, _raw, _line}|t], acc) do
-    {tag, t} = parse_tag(:unescaped_variable, t, [])
-    parse([tag|t], acc)
+  defp parse([{:unescaped_tag_open, _raw, line}|t], acc) do
+    {{:unescaped_variable, key, _line}, t} = parse_tag(:unescaped_variable, t, [])
+    parse([{:unescaped_variable, key, line}|t], acc)
   end
 
-  defp parse([{:section_begin, name, _line}|t], acc) do
-    {{:section, ^name, line, children}, t} = parse(t, [])
+  defp parse([{:section_begin, name, line}|t], acc) do
+    {{:section, ^name, _line, children}, t} = parse(t, [])
     parse(t, [{:section, name, line, children}|acc])
   end
 
@@ -33,8 +33,15 @@ defmodule FuManchu.Parser do
   end
 
   defp parse([{:comment, _, line}|t], acc) do
+    next_line = case t do
+      [{_, _, next_line}|_] ->
+        next_line
+      _ ->
+        line
+    end
+
     {stripped_acc, prev} = pop_line(acc, line)
-    {stripped_t, next}   = pop_line(t, line)
+    {stripped_t, next}   = pop_line(t, next_line)
 
     whitespace_line = Enum.all?(prev ++ next, fn {:text, text, _} ->
       String.strip(text) == ""

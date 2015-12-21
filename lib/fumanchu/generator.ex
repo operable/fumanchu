@@ -21,13 +21,16 @@ defmodule FuManchu.Generator do
     quote do
       context
       |> access(unquote(variable))
+      |> to_string
       |> encode_html_entities
     end
   end
 
   def generate({:unescaped_variable, variable, _line}) do
     quote do
-      access(context, unquote(variable))
+      context
+      |> access(unquote(variable))
+      |> to_string
     end
   end
 

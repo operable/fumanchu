@@ -38,4 +38,13 @@ defmodule FuManchu.GeneratorTest do
     operable:help
     """
   end
+
+  test "generating a section used for iteration by key" do
+    quoted_fun = Generator.generate([{:text, "\"", 1},
+                                     {:section, "list", 1, [
+                                       {:variable, "item", 1}]},
+                                     {:text, "\"", 1}])
+    {fun, []} = Code.eval_quoted(quoted_fun)
+    assert fun.(%{list: [%{item: 1}, %{item: 2}, %{item: 3}]}) == "\"123\""
+  end
 end

@@ -32,27 +32,8 @@ defmodule FuManchu.Parser do
     {{:section, name, line, Enum.reverse(acc)}, t}
   end
 
-  defp parse([{:comment, _, line}|t], acc) do
-    next_line = case t do
-      [{_, _, next_line}|_] ->
-        next_line
-      _ ->
-        line
-    end
-
-    {stripped_acc, prev} = pop_line(acc, line)
-    {stripped_t, next}   = pop_line(t, next_line)
-
-    whitespace_line = Enum.all?(prev ++ next, fn {:text, text, _} ->
-      String.strip(text) == ""
-    end)
-
-    case whitespace_line do
-      true ->
-        parse(stripped_t, stripped_acc)
-      false ->
-        parse(t, acc)
-    end
+  defp parse([{:comment, _, _}|t], acc) do
+    parse(t, acc)
   end
 
   defp parse([h|t], acc) do
@@ -91,37 +72,24 @@ defmodule FuManchu.Parser do
     parse_tag(:variable, t, [])
   end
 
-  defp parse_tag(type, [{:tag_close, _, line}|t], acc) do
+  defp parse_tag(type, [{tag_close, _, line}|t], acc)
+      when tag_close in [:tag_close, :unescaped_tag_close] do
     key = acc
     |> Enum.reverse
     |> Enum.join
     |> String.strip
+
+    key = case key do
+      "." ->
+        key
+      key ->
+        String.split(key, ".")
+    end
 
     {{type, key, line}, t}
   end
 
-  defp parse_tag(:unescaped_variable, [{:unescaped_tag_close, _, line}|t], acc) do
-    key = acc
-    |> Enum.reverse
-    |> Enum.join
-    |> String.strip
-
-    {{:unescaped_variable, key, line}, t}
-  end
-
   defp parse_tag(type, [{:tag_key, key, _}|t], acc) do
     parse_tag(type, t, [key|acc])
-  end
-
-  defp pop_line(buffer, line) do
-    pop_line(buffer, line, [])
-  end
-
-  defp pop_line([{_, _, line}=h|t], line, acc) do
-    pop_line(t, line, [h|acc])
-  end
-
-  defp pop_line(buffer, _, acc) do
-    {buffer, Enum.reverse(acc)}
   end
 end

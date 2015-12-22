@@ -6,7 +6,10 @@ defmodule FuManchu.SpecTest do
   @git "git@github.com:mustache/spec.git"
   @version "v1.1.3"
 
-  Mix.SCM.Git.checkout(git: @git, dest: @dest, tag: @version)
+  unless File.dir?(@dest) do
+    Mix.SCM.Git.checkout(git: @git, dest: @dest, tag: @version)
+  end
+
   specs_glob = Path.join([@dest, "specs", "*.json"])
 
   for spec_path <- Path.wildcard(specs_glob) do

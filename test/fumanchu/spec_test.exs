@@ -25,6 +25,7 @@ defmodule FuManchu.SpecTest do
         "template" => template,
         "expected" => expected} = test_case
 
+      partials = Macro.escape(Map.get(test_case, "partials", %{}))
       data = Macro.escape(data)
 
       basename = Path.basename(spec_path, ".json")
@@ -35,7 +36,7 @@ defmodule FuManchu.SpecTest do
       @tag optional: optional
 
       test "#{name} - #{desc}" do
-        actual = FuManchu.render(unquote(template), unquote(data))
+        actual = FuManchu.render(unquote(template), unquote(data), unquote(partials))
         assert actual == unquote(expected)
       end
     end

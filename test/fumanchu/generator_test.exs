@@ -5,13 +5,13 @@ defmodule FuManchu.GeneratorTest do
   test "generating text" do
     quoted_fun = Generator.generate([{:text, "Hello World!", 1}])
     {fun, []} = Code.eval_quoted(quoted_fun)
-    assert fun.([]) == "Hello World!"
+    assert fun.(%{context: %{}, partials: %{}}) == "Hello World!"
   end
 
   test "generating a variable" do
     quoted_fun = Generator.generate([{:text, "Hello ", 1}, {:variable, ["planet"], 1}])
     {fun, []} = Code.eval_quoted(quoted_fun)
-    assert fun.(%{planet: "World!"}) == "Hello World!"
+    assert fun.(%{context: %{planet: "World!"}, partials: %{}}) == "Hello World!"
   end
 
   test "generating a section containing a variable" do
@@ -23,7 +23,7 @@ defmodule FuManchu.GeneratorTest do
                                        {:text, "</b>\n", 2}]},
                                      {:text, "\n", 3}])
     {fun, []} = Code.eval_quoted(quoted_fun)
-    assert fun.(%{repo: true, name: true}) == """
+    assert fun.(%{context: %{repo: true, name: true}, partials: %{}}) == """
     \n  <b>fumanchu</b>\n
     """
   end
@@ -33,7 +33,7 @@ defmodule FuManchu.GeneratorTest do
                                        {:variable, ".", 1},
                                        {:text, "\n", 1}]}])
     {fun, []} = Code.eval_quoted(quoted_fun)
-    assert fun.(%{commands: ["operable:echo", "operable:help"]}) == """
+    assert fun.(%{context: %{commands: ["operable:echo", "operable:help"]}, partials: %{}}) == """
     operable:echo
     operable:help
     """
@@ -45,6 +45,6 @@ defmodule FuManchu.GeneratorTest do
                                        {:variable, ["item"], 1}]},
                                      {:text, "\"", 1}])
     {fun, []} = Code.eval_quoted(quoted_fun)
-    assert fun.(%{list: [%{item: 1}, %{item: 2}, %{item: 3}]}) == "\"123\""
+    assert fun.(%{context: %{list: [%{item: 1}, %{item: 2}, %{item: 3}]}, partials: %{}}) == "\"123\""
   end
 end

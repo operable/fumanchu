@@ -3,7 +3,7 @@ defmodule FuManchu.Generator do
     elements = Enum.map(children, &generate/1)
 
     quote do
-      fn context ->
+      fn %{context: context, partials: partials} ->
         import FuManchu.Util
 
         fn context ->
@@ -87,6 +87,15 @@ defmodule FuManchu.Generator do
         list when is_list(list) ->
           ""
       end
+    end
+  end
+
+  def generate({:partial, [name], _line}) do
+    quote do
+      fn context ->
+        source = Map.get(partials, unquote(name), "")
+        FuManchu.render(source, context, partials)
+      end.(context)
     end
   end
 end

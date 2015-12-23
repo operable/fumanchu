@@ -18,7 +18,7 @@ defmodule FuManchu.SpecTest do
     |> Poison.decode!
     |> Map.get("tests", [])
 
-    for test_case <- test_cases do
+    for {test_case, index} <- Enum.with_index(test_cases) do
       %{"name" => name,
         "desc" => desc,
         "data" => data,
@@ -35,7 +35,7 @@ defmodule FuManchu.SpecTest do
       @tag type: type
       @tag optional: optional
 
-      test "#{name} - #{desc}" do
+      test "#{name} - #{desc} - #{index}" do
         actual = FuManchu.render(unquote(template), unquote(data), unquote(partials))
         assert actual == unquote(expected)
       end

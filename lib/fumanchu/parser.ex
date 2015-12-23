@@ -74,6 +74,10 @@ defmodule FuManchu.Parser do
     parse(t, acc)
   end
 
+  defp parse([{:comment, _, _}], [{:whitespace, _, _}, {:newline, _, _}=newline|acc]) do
+    parse([], [newline|acc])
+  end
+
   defp parse([{:comment, _, _}|t], acc) do
     parse(t, acc)
   end

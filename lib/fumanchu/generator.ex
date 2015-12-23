@@ -99,4 +99,18 @@ defmodule FuManchu.Generator do
       end.(context)
     end
   end
+
+  def generate({:partial, [name], _line, indent}) do
+    quote do
+      fn context ->
+        source = partials
+        |> Map.get(unquote(name), "")
+        |> String.split("\n")
+        |> Enum.map(&(unquote(indent) <> &1))
+        |> Enum.join("\n")
+
+        FuManchu.render(source, context, partials)
+      end.(context)
+    end
+  end
 end

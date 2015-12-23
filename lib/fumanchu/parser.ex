@@ -84,6 +84,22 @@ defmodule FuManchu.Parser do
     {{:section, name, line, Enum.reverse(acc)}, t}
   end
 
+  defp parse([{:partial, _, _}=partial, {:newline, _, _}|t], [{:newline, _, _}|_]=acc) do
+    parse([partial|t], acc)
+  end
+
+  defp parse([{:partial, name, line}, {:newline, _, _}|t], [{:whitespace, whitespace, _}]) do
+    parse([{:partial, name, line, whitespace}|t], [])
+  end
+
+  defp parse([{:partial, name, line}|t], [{:whitespace, whitespace, _}]) do
+    parse([{:partial, name, line, whitespace}|t], [])
+  end
+
+  defp parse([{:partial, name, line}|t], [{:whitespace, whitespace, _}, {:newline, _, _}=newline|acc]) do
+    parse([{:partial, name, line, whitespace}|t], [newline|acc])
+  end
+
   defp parse([{:comment, _, _}, {:newline, _, _}|t], [{:whitespace, _, _}, {:newline, _, _}=newline|acc]) do
     parse(t, [newline|acc])
   end
@@ -102,6 +118,10 @@ defmodule FuManchu.Parser do
 
   defp parse([{:comment, _, _}|t], acc) do
     parse(t, acc)
+  end
+
+  defp parse([{:newline, _, _}, {:whitespace, _, _}], acc) do
+    parse([], acc)
   end
 
   defp parse([h|t], acc) do

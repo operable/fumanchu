@@ -84,6 +84,12 @@ defmodule FuManchu.Tokenizer do
     tokenize_tag_key(t, [], acc, line + 1)
   end
 
+  defp tokenize_tag_key('\n' ++ t, buffer, acc, line) do
+    acc = append_tag_key(buffer, acc, line)
+    acc = append_newline('\n', acc, line)
+    tokenize_tag_key(t, [], acc, line + 1)
+  end
+
   defp tokenize_tag_key('}}' ++ t, buffer, acc, line) do
     acc = append_tag_key(buffer, acc, line)
     token = {:tag_close, "}}", line}

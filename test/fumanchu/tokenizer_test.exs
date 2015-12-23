@@ -15,31 +15,33 @@ defmodule FuManchu.TokenizerTest do
               {:tag_open, "{{", 1},
               {:tag_key, "name", 1},
               {:tag_close, "}}", 1},
-              {:text, "\n", 1},
+              {:newline, "\n", 1},
 
               {:text, "You have just won ", 2},
               {:tag_open, "{{", 2},
               {:tag_key, "value", 2},
               {:tag_close, "}}", 2},
-              {:text, " dollars!\n", 2},
+              {:text, " dollars!", 2},
+              {:newline, "\n", 2},
 
               {:tag_open, "{{", 3},
               {:tag_type, "#", 3},
               {:tag_key, "in_ca", 3},
               {:tag_close, "}}", 3},
-              {:text, "\n", 3},
+              {:newline, "\n", 3},
 
               {:text, "Well, ", 4},
               {:tag_open, "{{", 4},
               {:tag_key, "taxed_value", 4},
               {:tag_close, "}}", 4},
-              {:text, " dollars, after taxes.\n", 4},
+              {:text, " dollars, after taxes.", 4},
+              {:newline, "\n", 4},
 
               {:tag_open, "{{", 5},
               {:tag_type, "/", 5},
               {:tag_key, "in_ca", 5},
               {:tag_close, "}}", 5},
-              {:text, "\n", 5}]
+              {:newline, "\n", 5}]
 
     assert Tokenizer.tokenize(template) == tokens
   end
@@ -56,25 +58,25 @@ defmodule FuManchu.TokenizerTest do
               {:tag_open, "{{", 1},
               {:tag_key, "name", 1},
               {:tag_close, "}}", 1},
-              {:text, "\n", 1},
+              {:newline, "\n", 1},
 
               {:text, "* ", 2},
               {:tag_open, "{{", 2},
               {:tag_key, "age", 2},
               {:tag_close, "}}", 2},
-              {:text, "\n", 2},
+              {:newline, "\n", 2},
 
               {:text, "* ", 3},
               {:tag_open, "{{", 3},
               {:tag_key, "company", 3},
               {:tag_close, "}}", 3},
-              {:text, "\n", 3},
+              {:newline, "\n", 3},
 
               {:text, "* ", 4},
               {:unescaped_tag_open, "{{{", 4},
               {:tag_key, "company", 4},
               {:unescaped_tag_close, "}}}", 4},
-              {:text, "\n", 4}]
+              {:newline, "\n", 4}]
 
     assert Tokenizer.tokenize(template) == tokens
   end
@@ -89,10 +91,11 @@ defmodule FuManchu.TokenizerTest do
     tokens = [{:text, "What's for dinner? ", 1},
               {:tag_open, "{{", 1},
               {:tag_type, "!", 1},
-              {:tag_key, "\n", 1},
-              {:tag_key, "Please say lasagna.\n", 2},
+              {:newline, "\n", 1},
+              {:tag_key, "Please say lasagna.", 2},
+              {:newline, "\n", 2},
               {:tag_close, "}}", 3},
-              {:text, "\n", 3}]
+              {:newline, "\n", 3}]
 
     assert Tokenizer.tokenize(template) == tokens
   end

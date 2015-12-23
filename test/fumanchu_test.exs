@@ -24,11 +24,8 @@ defmodule FuManchuTest do
     assert result == """
     I know about these commands:
 
-
       * operable:help
-
       * operable:echo
-
 
     Try calling `operable:help COMMAND` to find out more.
     """

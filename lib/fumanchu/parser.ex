@@ -104,10 +104,6 @@ defmodule FuManchu.Parser do
     parse(t, [newline|acc])
   end
 
-  defp parse([{:partial, _, _}=partial, {:newline, _, _}|t], [{:newline, _, _}|_]=acc) do
-    parse([partial|t], acc)
-  end
-
   defp parse([{:comment, _, _}, {:newline, _, _}|t], [{:newline, _, _}|_]=acc) do
     parse(t, acc)
   end
@@ -179,5 +175,9 @@ defmodule FuManchu.Parser do
 
   defp parse_tag(type, [{:tag_key, key, _}|t], acc) do
     parse_tag(type, t, [key|acc])
+  end
+
+  defp parse_tag(type, [{:newline, _, _}|t], acc) do
+    parse_tag(type, t, acc)
   end
 end

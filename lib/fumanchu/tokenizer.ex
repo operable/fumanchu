@@ -4,7 +4,12 @@ defmodule FuManchu.Tokenizer do
   end
 
   def tokenize(char_list) do
-    tokenize(char_list, [], [], 1)
+    case tokenize(char_list, [], [], 1) do
+      :error ->
+        :error
+      tokens ->
+        {:ok, tokens}
+    end
   end
 
   defp tokenize('{{{' ++ t, buffer, acc, line) do

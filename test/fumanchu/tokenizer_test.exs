@@ -43,7 +43,7 @@ defmodule FuManchu.TokenizerTest do
               {:tag_close, "}}", 5},
               {:newline, "\n", 5}]
 
-    assert Tokenizer.tokenize(template) == tokens
+    assert Tokenizer.tokenize(template) == {:ok, tokens}
   end
 
   test "tokenizes unescaped tags" do
@@ -78,7 +78,7 @@ defmodule FuManchu.TokenizerTest do
               {:unescaped_tag_close, "}}}", 4},
               {:newline, "\n", 4}]
 
-    assert Tokenizer.tokenize(template) == tokens
+    assert Tokenizer.tokenize(template) == {:ok, tokens}
   end
 
   test "tokenizes multi-line comments" do
@@ -97,6 +97,6 @@ defmodule FuManchu.TokenizerTest do
               {:tag_close, "}}", 3},
               {:newline, "\n", 3}]
 
-    assert Tokenizer.tokenize(template) == tokens
+    assert Tokenizer.tokenize(template) == {:ok, tokens}
   end
 end

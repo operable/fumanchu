@@ -33,6 +33,11 @@ defmodule FuManchu.Parser do
     parse(t, [{:section, name, line, children}|acc])
   end
 
+  defp parse([{:section_begin, name, line}, {:newline, _, _}=next_newline|t], [{:whitespace, _, _}, {:newline, _, _}=prev_newline|acc]) do
+    {{:section, ^name, _line, [{:newline, _, _}|children]}, t} = parse([next_newline|t], [])
+    parse(t, [{:section, name, line, children}, prev_newline|acc])
+  end
+
   defp parse([{:section_begin, name, line}|t], acc) do
     {{:section, ^name, _line, children}, t} = parse(t, [])
     parse(t, [{:section, name, line, children}|acc])
@@ -53,9 +58,18 @@ defmodule FuManchu.Parser do
     parse(t, [{:inverted_section, name, line, children}|acc])
   end
 
+  defp parse([{:inverted_section_begin, name, line}, {:newline, _, _}=next_newline|t], [{:whitespace, _, _}, {:newline, _, _}=prev_newline|acc]) do
+    {{:section, ^name, _line, [{:newline, _, _}|children]}, t} = parse([next_newline|t], [])
+    parse(t, [{:inverted_section, name, line, children}, prev_newline|acc])
+  end
+
   defp parse([{:inverted_section_begin, name, _line}|t], acc) do
     {{:section, ^name, line, children}, t} = parse(t, [])
     parse(t, [{:inverted_section, name, line, children}|acc])
+  end
+
+  defp parse([{:section_end, name, line}, {:newline, _, _}|t], [{:whitespace, _, _}, {:newline, _, _}=newline|acc]) do
+    {{:section, name, line, Enum.reverse([newline|acc])}, t}
   end
 
   defp parse([{:section_end, name, line}], [{:whitespace, _, _}, {:newline, _, _}=newline|acc]) do

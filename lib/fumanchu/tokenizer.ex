@@ -8,19 +8,26 @@ defmodule FuManchu.Tokenizer do
   end
 
   defp tokenize('{{{' ++ t, buffer, acc, line) do
-    acc = append_buffer(:text, buffer, acc, line)
+    acc = append_text(buffer, acc, line)
     token = {:unescaped_tag_open, "{{{", line}
     tokenize_unescaped_tag_key(t, [], [token|acc], line)
   end
 
   defp tokenize('{{' ++ t, buffer, acc, line) do
-    acc = append_buffer(:text, buffer, acc, line)
+    acc = append_text(buffer, acc, line)
     token = {:tag_open, "{{", line}
     tokenize_tag_type(t, [token|acc], line)
   end
 
+  defp tokenize('\r\n' ++ t, buffer, acc, line) do
+    acc = append_text(buffer, acc, line)
+    acc = append_newline('\r\n', acc, line)
+    tokenize(t, [], acc, line + 1)
+  end
+
   defp tokenize('\n' ++ t, buffer, acc, line) do
-    acc = append_buffer(:text, '\n' ++ buffer, acc, line)
+    acc = append_text(buffer, acc, line)
+    acc = append_newline('\n', acc, line)
     tokenize(t, [], acc, line + 1)
   end
 
@@ -33,7 +40,7 @@ defmodule FuManchu.Tokenizer do
   end
 
   defp tokenize([], buffer, acc, line) do
-    acc = append_buffer(:text, buffer, acc, line)
+    acc = append_text(buffer, acc, line)
     tokenize([], [], acc, line)
   end
 
@@ -71,13 +78,14 @@ defmodule FuManchu.Tokenizer do
     tokenize_tag_key(t, [], acc, line)
   end
 
-  defp tokenize_tag_key('\n' ++ t, buffer, acc, line) do
-    acc = append_buffer(:tag_key, '\n' ++ buffer, acc, line)
+  defp tokenize_tag_key('\r\n' ++ t, buffer, acc, line) do
+    acc = append_tag_key(buffer, acc, line)
+    acc = append_newline('\r\n', acc, line)
     tokenize_tag_key(t, [], acc, line + 1)
   end
 
   defp tokenize_tag_key('}}' ++ t, buffer, acc, line) do
-    acc = append_buffer(:tag_key, buffer, acc, line)
+    acc = append_tag_key(buffer, acc, line)
     token = {:tag_close, "}}", line}
     tokenize(t, [], [token|acc], line)
   end
@@ -87,12 +95,12 @@ defmodule FuManchu.Tokenizer do
   end
 
   defp tokenize_unescaped_tag_key('\n' ++ t, buffer, acc, line) do
-    acc = append_buffer(:tag_key, '\n' ++ buffer, acc, line)
+    acc = append_tag_key('\n' ++ buffer, acc, line)
     tokenize_unescaped_tag_key(t, [], acc, line + 1)
   end
 
   defp tokenize_unescaped_tag_key('}}}' ++ t, buffer, acc, line) do
-    acc = append_buffer(:tag_key, buffer, acc, line)
+    acc = append_tag_key(buffer, acc, line)
     token = {:unescaped_tag_close, "}}}", line}
     tokenize(t, [], [token|acc], line)
   end
@@ -101,13 +109,41 @@ defmodule FuManchu.Tokenizer do
     tokenize_unescaped_tag_key(t, [h|buffer], acc, line)
   end
 
-  defp append_buffer(_type, [], acc, _line) do
+  def append_text([], acc, _line) do
     acc
   end
 
-  defp append_buffer(type, buffer, acc, line) do
+  def append_text(buffer, acc, line) do
     value = buffer |> Enum.reverse |> to_string
-    token = {type, value, line}
+
+    tag = case String.strip(value) do
+      "" ->
+        :whitespace
+      _ ->
+        :text
+    end
+
+    token = {tag, value, line}
+    [token|acc]
+  end
+
+  def append_newline([], acc, _line) do
+    acc
+  end
+
+  def append_newline(buffer, acc, line) do
+    value = buffer |> to_string
+    token = {:newline, value, line}
+    [token|acc]
+  end
+
+  def append_tag_key([], acc, _line) do
+    acc
+  end
+
+  def append_tag_key(buffer, acc, line) do
+    value = buffer |> Enum.reverse |> to_string
+    token = {:tag_key, value, line}
     [token|acc]
   end
 end

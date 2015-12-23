@@ -13,7 +13,8 @@ defmodule FuManchu.Generator do
     end
   end
 
-  def generate({:text, text, _line}) do
+  def generate({type, text, _line})
+      when type in [:text, :whitespace, :newline] do
     text
   end
 

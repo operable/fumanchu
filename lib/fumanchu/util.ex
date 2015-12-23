@@ -44,7 +44,7 @@ defmodule FuManchu.Util do
     do: access(context, key, "")
   def access(context, ".", _default),
     do: context
-  def access(context, [], default),
+  def access(context, [], _default),
     do: context
   def access(context, [h|t], default) when is_map(context),
     do: access(Map.get(context, h, default), t, default)

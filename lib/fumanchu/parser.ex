@@ -66,6 +66,10 @@ defmodule FuManchu.Parser do
     {{:section, name, line, Enum.reverse(acc)}, t}
   end
 
+  defp parse([{:comment, _, _}, {:newline, _, _}|t], [{:whitespace, _, _}, {:newline, _, _}=newline|acc]) do
+    parse(t, [newline|acc])
+  end
+
   defp parse([{:partial, _, _}=partial, {:newline, _, _}|t], [{:newline, _, _}|_]=acc) do
     parse([partial|t], acc)
   end

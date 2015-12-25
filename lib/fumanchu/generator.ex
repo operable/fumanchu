@@ -91,7 +91,7 @@ defmodule FuManchu.Generator do
     end
   end
 
-  def generate({:partial, [name], _line}) do
+  def generate({:partial, name, _line}) do
     quote do
       fn context ->
         source = Map.get(partials, unquote(name), "")
@@ -100,7 +100,7 @@ defmodule FuManchu.Generator do
     end
   end
 
-  def generate({:partial, [name], _line, indent}) do
+  def generate({:partial, name, _line, indent}) do
     quote do
       fn context ->
         source = partials

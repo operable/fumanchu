@@ -1,10 +1,10 @@
 defmodule FuManchu.Compiler do
-  alias FuManchu.Tokenizer
+  alias FuManchu.Lexer
   alias FuManchu.Parser
   alias FuManchu.Generator
 
   def compile(source) do
-    {:ok, tokens} = Tokenizer.tokenize(source)
+    {:ok, tokens} = Lexer.scan(source)
     {:ok, ast}    = Parser.parse(tokens)
     quoted_fun    = Generator.generate(ast)
     {fun, []}     = Code.eval_quoted(quoted_fun)

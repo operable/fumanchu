@@ -39,12 +39,13 @@ defmodule FuManchu.Util do
   defp encode_html_entities([h|t], acc),
     do: encode_html_entities(t, [h|acc])
 
-
   def access(context, key),
     do: access(context, key, "")
   def access(context, ".", _default),
     do: context
-  def access(context, [], _default),
+  def access(context, key, default) when is_binary(key),
+    do: access(context, String.split(key, "."), default)
+  def access(context, [], default),
     do: context
   def access(context, [h|t], default) when is_map(context),
     do: access(Map.get(context, h, default), t, default)

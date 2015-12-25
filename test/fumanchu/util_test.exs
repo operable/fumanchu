@@ -43,4 +43,8 @@ defmodule FuManchu.UtilTest do
   test "access something that doesn't exist" do
     assert Util.access(%{"a" => "b"}, ["a", "b", "c"]) == ""
   end
+
+  test "access with a dotted string key" do
+    assert Util.access(%{"a" => %{"b" => "c"}}, "a.b") == "c"
+  end
 end

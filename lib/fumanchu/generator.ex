@@ -79,8 +79,6 @@ defmodule FuManchu.Generator do
           render.(context)
         true ->
           ""
-        %{} ->
-          ""
         map when is_map(map) ->
           ""
         [] ->

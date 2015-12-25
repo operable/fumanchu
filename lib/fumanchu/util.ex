@@ -45,7 +45,7 @@ defmodule FuManchu.Util do
     do: context
   def access(context, key, default) when is_binary(key),
     do: access(context, String.split(key, "."), default)
-  def access(context, [], default),
+  def access(context, [], _default),
     do: context
   def access(context, [h|t], default) when is_map(context),
     do: access(Map.get(context, h, default), t, default)

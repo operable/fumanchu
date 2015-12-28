@@ -1,8 +1,9 @@
 defmodule FuManchu.Generator do
+  # TODO: Handle errors while generating quoted fun
   def generate(children) when is_list(children) do
     elements = Enum.map(children, &generate/1)
 
-    quote do
+    quoted_fun = quote do
       fn %{context: context, partials: partials} ->
         import FuManchu.Util
 
@@ -11,6 +12,8 @@ defmodule FuManchu.Generator do
         end.(stringify_keys(context))
       end
     end
+
+    {:ok, quoted_fun}
   end
 
   def generate({type, text, _line})

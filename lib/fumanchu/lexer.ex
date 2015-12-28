@@ -1,12 +1,35 @@
+defmodule FuManchu.Lexer.TokenMissingError do
+  defexception [:message]
+
+  # TODO: Support passing in the filename of the template
+  def exception(%{parsed_line: parsed_line, terminator: terminator, starting: starting, starting_line: starting_line}) do
+    message = ~s[template:#{parsed_line}: missing terminator: #{inspect terminator} (for #{inspect starting} starting at line #{starting_line})]
+    %FuManchu.Lexer.TokenMissingError{message: message}
+  end
+end
+
+defmodule FuManchu.Lexer.TokenUnexpectedError do
+  defexception [:message]
+
+  # TODO: Support passing in the filename of the template
+  def exception(%{parsed_line: parsed_line, token: token}) do
+    message = ~s[template:#{parsed_line}: unexpected token: #{inspect token}]
+    %FuManchu.Lexer.TokenUnexpectedError{message: message}
+  end
+end
+
 defmodule FuManchu.Lexer do
+  alias FuManchu.Lexer.TokenMissingError
+  alias FuManchu.Lexer.TokenUnexpectedError
+
   def scan(bin) when is_binary(bin) do
     scan(String.to_char_list(bin))
   end
 
   def scan(char_list) do
     case scan(char_list, [], [], 1) do
-      :error ->
-        :error
+      {:error, error} ->
+        {:error, error}
       tokens ->
         {:ok, tokens}
     end
@@ -14,14 +37,30 @@ defmodule FuManchu.Lexer do
 
   defp scan('{{{' ++ t, buffer, acc, line) do
     acc = append_text(buffer, acc, line)
-    {{:unescaped_variable, key, next_line}, t} = scan_tag(t, [], line)
-    scan(t, [], [{:unescaped_variable, key, line}|acc], next_line)
+
+    case scan_tag(t, [], line) do
+      {:error, %{rest: []}=opts} ->
+        opts = Map.merge(opts, %{terminator: "}}}", starting: "{{{", starting_line: line})
+        {:error, TokenMissingError.exception(opts)}
+      {:error, opts} ->
+        {:error, TokenUnexpectedError.exception(opts)}
+      {{:unescaped_variable, key, next_line}, t} ->
+        scan(t, [], [{:unescaped_variable, key, line}|acc], next_line)
+    end
   end
 
   defp scan('{{' ++ t, buffer, acc, line) do
     acc = append_text(buffer, acc, line)
-    {{tag, key, next_line}, t} = scan_tag(t, [], line)
-    scan(t, [], [{tag, key, line}|acc], next_line)
+
+    case scan_tag(t, [], line) do
+      {:error, %{rest: []}=opts} ->
+        opts = Map.merge(opts, %{terminator: "}}", starting: "{{", starting_line: line})
+        {:error, TokenMissingError.exception(opts)}
+      {:error, opts} ->
+        {:error, TokenUnexpectedError.exception(opts)}
+      {{tag, key, next_line}, t} ->
+        scan(t, [], [{tag, key, line}|acc], next_line)
+    end
   end
 
   defp scan('\r\n' ++ t, buffer, acc, line) do
@@ -73,6 +112,14 @@ defmodule FuManchu.Lexer do
     {{type, key, line}, t}
   end
 
+  defp scan_tag('{{{' ++ t, _acc, line) do
+    {:error, %{parsed_line: line, token: "{{{", rest: t}}
+  end
+
+  defp scan_tag('{{' ++ t, _acc, line) do
+    {:error, %{parsed_line: line, token: "{{", rest: t}}
+  end
+
   defp scan_tag('\r\n' ++ t, acc, line) do
     scan_tag(t, acc, line + 1)
   end
@@ -83,6 +130,10 @@ defmodule FuManchu.Lexer do
 
   defp scan_tag([h|t], acc, line) do
     scan_tag(t, [h|acc], line)
+  end
+
+  defp scan_tag([], _acc, line) do
+    {:error, %{parsed_line: line, rest: []}}
   end
 
   defp append_text([], acc, _line) do

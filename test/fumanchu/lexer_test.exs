@@ -74,4 +74,27 @@ defmodule FuManchu.LexerTest do
 
     assert Lexer.scan(template) == {:ok, tokens}
   end
+
+  test "raises error for missing tag end" do
+    template = """
+    What's for dinner? {{!
+    Please say lasagna.
+    """
+
+    error = %Lexer.TokenMissingError{message: ~s[template:3: missing terminator: "}}" (for "{{" starting at line 1)]}
+
+    assert Lexer.scan(template) == {:error, error}
+  end
+
+  test "raises error for unexpected tag begin" do
+    template = """
+    What's for dinner? {{!
+    Please say lasagna.
+    {{
+    """
+
+    error = %Lexer.TokenUnexpectedError{message: ~s[template:3: unexpected token: "{{"]}
+
+    assert Lexer.scan(template) == {:error, error}
+  end
 end

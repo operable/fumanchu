@@ -34,24 +34,24 @@ defmodule FuManchu.Parser do
     parse([tag|t], [newline|acc])
   end
 
-  defp parse([{:section_begin, name, line, col}|t], [h|_]=acc) do
-    case parse([h|t], []) do
-      {{:section, ^name, _line, _col, [^h|children]}, t} ->
+  defp parse([{:section_begin, name, line, col}=h|t], [prev|_]=acc) do
+    case parse([prev|t], []) do
+      {{:section, ^name, _line, _col, [^prev|children]}, t} ->
         parse(t, [{:section, name, line, col, children}|acc])
       _ ->
-        parsed_line = line_of_last_token(t, line)
-        opts = %{parsed_line: parsed_line, token_name: "section end", token: "{{/#{name}}}", starting: "{{##{name}}}", starting_line: line}
+        {_, _, parsed_line, parsed_col} = last_token([h|t])
+        opts = %{parsed_line: parsed_line, parsed_col: parsed_col, token_name: "section end", token: "{{/#{name}}}", starting: "{{##{name}}}", starting_line: line, starting_col: col}
         {:error, TokenMissingError.exception(opts)}
     end
   end
 
-  defp parse([{:inverted_section_begin, name, line, col}|t], [h|_]=acc) do
-    case parse([h|t], []) do
-      {{:section, ^name, _line, _col, [^h|children]}, t} ->
+  defp parse([{:inverted_section_begin, name, line, col}=h|t], [prev|_]=acc) do
+    case parse([prev|t], []) do
+      {{:section, ^name, _line, _col, [^prev|children]}, t} ->
         parse(t, [{:inverted_section, name, line, col, children}|acc])
       _ ->
-        parsed_line = line_of_last_token(t, line)
-        opts = %{parsed_line: parsed_line, token_name: "section end", token: "{{/#{name}}}", starting: "{{^#{name}}}", starting_line: line}
+        {_, _, parsed_line, parsed_col} = last_token([h|t])
+        opts = %{parsed_line: parsed_line, parsed_col: parsed_col, token_name: "section end", token: "{{/#{name}}}", starting: "{{^#{name}}}", starting_line: line, starting_col: col}
         {:error, TokenMissingError.exception(opts)}
     end
   end
@@ -69,8 +69,8 @@ defmodule FuManchu.Parser do
     parse(t, [h|acc])
   end
 
-  defp parse([{token, _, line, _col}|_t], _acc) do
-    {:error, TokenUnrecognizedError.exception(%{token: token, line: line})}
+  defp parse([{token, _, line, col}|_t], _acc) do
+    {:error, TokenUnrecognizedError.exception(%{token: token, line: line, col: col})}
   end
 
   defp parse([], [@marker_end|acc]) do
@@ -86,16 +86,12 @@ defmodule FuManchu.Parser do
     end
   end
 
-  defp line_of_last_token(tokens, current_line) do
+  defp last_token(tokens) do
     case Enum.reverse(tokens) do
-      [@marker_end, {_, _, line, _}|_] ->
-        line
-      [@marker_end] ->
-        current_line
-      [{_, _, line, _}|_] ->
-        line
-      [] ->
-        current_line
+      [@marker_end, token|_] ->
+        token
+      [token|_] ->
+        token
     end
   end
 end

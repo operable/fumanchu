@@ -61,7 +61,7 @@ defmodule FuManchu.ParserTest do
 
               {:newline, "\n", 5, 10}]
 
-    error = %Parser.TokenMissingError{message: ~s[template:5: missing section end: "{{/in_ca}}" (for "{{#in_ca}}" starting at line 3)]}
+    error = %Parser.TokenMissingError{message: ~s[template:5:10: missing section end: "{{/in_ca}}" (for "{{#in_ca}}" starting at line 3, column 0)]}
 
     assert Parser.parse(tokens) == {:error, error}
   end
@@ -75,7 +75,7 @@ defmodule FuManchu.ParserTest do
 
               {:newline, "\n", 2, 6}]
 
-    error = %Parser.TokenUnrecognizedError{message: ~s[template:2: unrecognized token: :wut]}
+    error = %Parser.TokenUnrecognizedError{message: ~s[template:2:0: unrecognized token: :wut]}
 
     assert Parser.parse(tokens) == {:error, error}
   end

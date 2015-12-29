@@ -21,7 +21,7 @@ defmodule FuManchu.Lexer do
 
     case scan_unescaped_tag(t, [], line, col + 3) do
       {:error, %{rest: []}=opts} ->
-        opts = Map.merge(opts, %{terminator: "}}}", starting: "{{{", starting_line: line})
+        opts = Map.merge(opts, %{terminator: "}}}", starting: "{{{", starting_line: line, starting_col: col})
         {:error, TokenMissingError.exception(opts)}
       {:error, opts} ->
         {:error, TokenUnexpectedError.exception(opts)}
@@ -35,7 +35,7 @@ defmodule FuManchu.Lexer do
 
     case scan_tag(t, [], line, col + 2) do
       {:error, %{rest: []}=opts} ->
-        opts = Map.merge(opts, %{terminator: "}}", starting: "{{", starting_line: line})
+        opts = Map.merge(opts, %{terminator: "}}", starting: "{{", starting_line: line, starting_col: col})
         {:error, TokenMissingError.exception(opts)}
       {:error, opts} ->
         {:error, TokenUnexpectedError.exception(opts)}
@@ -65,7 +65,7 @@ defmodule FuManchu.Lexer do
 
   defp scan_tag('}}' ++ t, acc, line, col) do
     if match?('}' ++ _, t) do
-      Logger.warn(~s[template:#{line}: tag end mismatched: "}}}"])
+      Logger.warn(~s[template:#{line}:#{col}: tag end mismatched: "}}}"])
     end
 
     key = acc |> Enum.reverse |> List.flatten
@@ -91,12 +91,12 @@ defmodule FuManchu.Lexer do
     {{type, key, line, col + 2}, t}
   end
 
-  defp scan_tag('{{{' ++ t, _acc, line, _col) do
-    {:error, %{parsed_line: line, token: "{{{", rest: t}}
+  defp scan_tag('{{{' ++ t, _acc, line, col) do
+    {:error, %{parsed_line: line, parsed_col: col, token: "{{{", rest: t}}
   end
 
-  defp scan_tag('{{' ++ t, _acc, line, _col) do
-    {:error, %{parsed_line: line, token: "{{", rest: t}}
+  defp scan_tag('{{' ++ t, _acc, line, col) do
+    {:error, %{parsed_line: line, parsed_col: col, token: "{{", rest: t}}
   end
 
   defp scan_tag('\r\n' ++ t, acc, line, _col) do
@@ -111,8 +111,8 @@ defmodule FuManchu.Lexer do
     scan_tag(t, [h|acc], line, col + 1)
   end
 
-  defp scan_tag([], _acc, line, _col) do
-    {:error, %{parsed_line: line, rest: []}}
+  defp scan_tag([], _acc, line, col) do
+    {:error, %{parsed_line: line, parsed_col: col, rest: []}}
   end
 
   defp scan_unescaped_tag('}}}' ++ t, acc, line, col) do
@@ -121,16 +121,16 @@ defmodule FuManchu.Lexer do
     {{:unescaped_variable, key, line, col + 3}, t}
   end
 
-  defp scan_unescaped_tag('}}' ++ t, _acc, line, _col) do
-    {:error, %{parsed_line: line, token: "}}", rest: t}}
+  defp scan_unescaped_tag('}}' ++ t, _acc, line, col) do
+    {:error, %{parsed_line: line, parsed_col: col, token: "}}", rest: t}}
   end
 
-  defp scan_unescaped_tag('{{{' ++ t, _acc, line, _col) do
-    {:error, %{parsed_line: line, token: "{{{", rest: t}}
+  defp scan_unescaped_tag('{{{' ++ t, _acc, line, col) do
+    {:error, %{parsed_line: line, parsed_col: col, token: "{{{", rest: t}}
   end
 
-  defp scan_unescaped_tag('{{' ++ t, _acc, line, _col) do
-    {:error, %{parsed_line: line, token: "{{", rest: t}}
+  defp scan_unescaped_tag('{{' ++ t, _acc, line, col) do
+    {:error, %{parsed_line: line, parsed_col: col, token: "{{", rest: t}}
   end
 
   defp scan_unescaped_tag('\r\n' ++ t, acc, line, _col) do
@@ -145,8 +145,8 @@ defmodule FuManchu.Lexer do
     scan_unescaped_tag(t, [h|acc], line, col + 1)
   end
 
-  defp scan_unescaped_tag([], _acc, line, _col) do
-    {:error, %{parsed_line: line, rest: []}}
+  defp scan_unescaped_tag([], _acc, line, col) do
+    {:error, %{parsed_line: line, parsed_col: col, rest: []}}
   end
 
   defp append_text([], acc, _line, _col) do

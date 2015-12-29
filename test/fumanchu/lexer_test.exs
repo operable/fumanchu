@@ -82,7 +82,7 @@ defmodule FuManchu.LexerTest do
     Please say lasagna.
     """
 
-    error = %Lexer.TokenMissingError{message: ~s[template:3: missing terminator: "}}" (for "{{" starting at line 1)]}
+    error = %Lexer.TokenMissingError{message: ~s[template:3:0: missing terminator: "}}" (for "{{" starting at line 1, column 19)]}
 
     assert Lexer.scan(template) == {:error, error}
   end
@@ -94,7 +94,7 @@ defmodule FuManchu.LexerTest do
     {{
     """
 
-    error = %Lexer.TokenUnexpectedError{message: ~s[template:3: unexpected token: "{{"]}
+    error = %Lexer.TokenUnexpectedError{message: ~s[template:3:0: unexpected token: "{{"]}
 
     assert Lexer.scan(template) == {:error, error}
   end
@@ -104,7 +104,7 @@ defmodule FuManchu.LexerTest do
     What's for dinner? {{{food}}
     """
 
-    error = %Lexer.TokenUnexpectedError{message: ~s[template:1: unexpected token: "}}"]}
+    error = %Lexer.TokenUnexpectedError{message: ~s[template:1:26: unexpected token: "}}"]}
 
     assert Lexer.scan(template) == {:error, error}
   end
@@ -118,6 +118,6 @@ defmodule FuManchu.LexerTest do
       Lexer.scan(template)
     end)
 
-    assert warning =~ ~s[template:1: tag end mismatched: "}}}"]
+    assert warning =~ ~s[template:1:25: tag end mismatched: "}}}"]
   end
 end

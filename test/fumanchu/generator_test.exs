@@ -55,7 +55,7 @@ defmodule FuManchu.GeneratorTest do
            {:section, "is_lasagna", 2, 0, [
              {:wut, "wut", 2, 15}]}]
 
-    error = %Generator.ASTNodeUnrecognizedError{message: ~s[template:2: unrecognized ast node: :wut]}
+    error = %Generator.ASTNodeUnrecognizedError{message: ~s[template:2:15: unrecognized ast node: :wut]}
 
     assert Generator.generate(ast) == {:error, error}
   end

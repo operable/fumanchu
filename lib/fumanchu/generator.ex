@@ -120,8 +120,8 @@ defmodule FuManchu.Generator do
     end
   end
 
-  def generate({name, _, line, _col}) do
-    {:error, ASTNodeUnrecognizedError.exception(%{node_name: name, line: line})}
+  def generate({name, _, line, col}) do
+    {:error, ASTNodeUnrecognizedError.exception(%{node_name: name, line: line, col: col})}
   end
 
   defp generate_children(children) when is_list(children) do

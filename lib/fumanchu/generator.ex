@@ -1,6 +1,10 @@
 defmodule FuManchu.Generator do
   alias FuManchu.Generator.ASTNodeUnrecognizedError
+  alias FuManchu.Parser
 
+  @type quoted :: any
+
+  @spec generate(Parser.ast | Parser.ast_node) :: quoted
   def generate(children) when is_list(children) do
     case generate_children(children) do
       {:error, error} ->

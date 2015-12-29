@@ -3,6 +3,7 @@ defmodule FuManchu.Compiler do
   alias FuManchu.Parser
   alias FuManchu.Generator
 
+  @spec compile!(String.t) :: (map -> String.t)
   def compile!(source) do
     source
     |> scan

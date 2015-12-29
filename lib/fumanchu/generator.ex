@@ -1,19 +1,23 @@
 defmodule FuManchu.Generator do
-  # TODO: Handle errors while generating quoted fun
+  alias FuManchu.Generator.ASTNodeUnrecognizedError
+
   def generate(children) when is_list(children) do
-    elements = Enum.map(children, &generate/1)
+    case generate_children(children) do
+      {:error, error} ->
+        {:error, error}
+      children ->
+        quoted_fun = quote do
+          fn %{context: context, partials: partials} ->
+            import FuManchu.Util
 
-    quoted_fun = quote do
-      fn %{context: context, partials: partials} ->
-        import FuManchu.Util
+            fn context ->
+              Enum.join(unquote(children))
+            end.(stringify_keys(context))
+          end
+        end
 
-        fn context ->
-          Enum.join(unquote(elements))
-        end.(stringify_keys(context))
-      end
+        {:ok, quoted_fun}
     end
-
-    {:ok, quoted_fun}
   end
 
   def generate({type, text, _line})
@@ -39,56 +43,62 @@ defmodule FuManchu.Generator do
   end
 
   def generate({:section, name, _line, children}) do
-    elements = Enum.map(children, &generate/1)
+    case generate_children(children) do
+      {:error, error} ->
+        {:error, error}
+      children ->
+        quote do
+          render = fn context ->
+            unquote(children)
+          end
 
-    quote do
-      render = fn context ->
-        unquote(elements)
-      end
+          name = unquote(name)
+          value = access(context, name, false)
 
-      name = unquote(name)
-      value = access(context, name, false)
-
-      case value do
-        false ->
-          ""
-        true ->
-          render.(context)
-        map when is_map(map) ->
-          render.(Map.merge(context, map))
-        [] ->
-          ""
-        list when is_list(list) ->
-          Enum.map(list, fn item ->
-            render.(item)
-          end)
-      end
+          case value do
+            false ->
+              ""
+            true ->
+              render.(context)
+            map when is_map(map) ->
+              render.(Map.merge(context, map))
+            [] ->
+              ""
+            list when is_list(list) ->
+              Enum.map(list, fn item ->
+                render.(item)
+              end)
+          end
+        end
     end
   end
 
   def generate({:inverted_section, name, _line, children}) do
-    elements = Enum.map(children, &generate/1)
+    case generate_children(children) do
+      {:error, error} ->
+        {:error, error}
+      children ->
+        quote do
+          render = fn context ->
+            unquote(children)
+          end
 
-    quote do
-      render = fn context ->
-        unquote(elements)
-      end
+          name = unquote(name)
+          value = access(context, name, false)
 
-      name = unquote(name)
-      value = access(context, name, false)
-
-      case value do
-        false ->
-          render.(context)
-        true ->
-          ""
-        map when is_map(map) ->
-          ""
-        [] ->
-          render.(context)
-        list when is_list(list) ->
-          ""
-      end
+          case value do
+            false ->
+              render.(context)
+            true ->
+              ""
+            map when is_map(map) ->
+              ""
+            [] ->
+              render.(context)
+            list when is_list(list) ->
+              ""
+          end
+        end
     end
   end
 
@@ -107,6 +117,21 @@ defmodule FuManchu.Generator do
 
         FuManchu.render(source, context, partials)
       end.(context)
+    end
+  end
+
+  def generate({name, _, line}) do
+    {:error, ASTNodeUnrecognizedError.exception(%{node_name: name, line: line})}
+  end
+
+  defp generate_children(children) when is_list(children) do
+    children = Enum.map(children, &generate/1)
+
+    case Enum.find(children, &match?({:error, _}, &1)) do
+      nil ->
+        children
+      error ->
+        error
     end
   end
 end

@@ -56,7 +56,7 @@ defmodule FuManchu.ParserTest do
 
               {:text, "\n", 5}]
 
-    error = %Parser.TokenMissingError{message: ~s[template:3: missing section end: "{{/in_ca}}" (for "{{#in_ca}}" starting at line 3)]}
+    error = %Parser.TokenMissingError{message: ~s[template:5: missing section end: "{{/in_ca}}" (for "{{#in_ca}}" starting at line 3)]}
 
     assert Parser.parse(tokens) == {:error, error}
   end

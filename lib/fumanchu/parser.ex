@@ -2,8 +2,8 @@ defmodule FuManchu.Parser.TokenMissingError do
   defexception [:message]
 
   # TODO: Support passing in the filename of the template
-  def exception(%{line: line, token_name: token_name, token: token, starting: starting}) do
-    message = ~s[template:#{line}: missing #{token_name}: #{inspect token} (for #{inspect starting} starting at line #{line})]
+  def exception(%{parsed_line: parsed_line, token_name: token_name, token: token, starting: starting, starting_line: starting_line}) do
+    message = ~s[template:#{parsed_line}: missing #{token_name}: #{inspect token} (for #{inspect starting} starting at line #{starting_line})]
     %FuManchu.Parser.TokenMissingError{message: message}
   end
 end
@@ -59,7 +59,8 @@ defmodule FuManchu.Parser do
       {{:section, ^name, _line, [^h|children]}, t} ->
         parse(t, [{:section, name, line, children}|acc])
       _ ->
-        opts = %{token_name: "section end", token: "{{/#{name}}}", starting: "{{##{name}}}", line: line}
+        parsed_line = line_of_last_token(t, line)
+        opts = %{parsed_line: parsed_line, token_name: "section end", token: "{{/#{name}}}", starting: "{{##{name}}}", starting_line: line}
         {:error, TokenMissingError.exception(opts)}
     end
   end
@@ -69,7 +70,8 @@ defmodule FuManchu.Parser do
       {{:section, ^name, _line, [^h|children]}, t} ->
         parse(t, [{:inverted_section, name, line, children}|acc])
       _ ->
-        opts = %{token_name: "section end", token: "{{/#{name}}}", starting: "{{^#{name}}}", line: line}
+        parsed_line = line_of_last_token(t, line)
+        opts = %{parsed_line: parsed_line, token_name: "section end", token: "{{/#{name}}}", starting: "{{^#{name}}}", starting_line: line}
         {:error, TokenMissingError.exception(opts)}
     end
   end
@@ -101,6 +103,19 @@ defmodule FuManchu.Parser do
         acc
       acc ->
         acc
+    end
+  end
+
+  defp line_of_last_token(tokens, current_line) do
+    case Enum.reverse(tokens) do
+      [@marker_end, {_, _, line}|_] ->
+        line
+      [@marker_end] ->
+        current_line
+      [{_, _, line}|_] ->
+        line
+      [] ->
+        current_line
     end
   end
 end

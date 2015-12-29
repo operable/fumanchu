@@ -1,23 +1,3 @@
-defmodule FuManchu.Lexer.TokenMissingError do
-  defexception [:message]
-
-  # TODO: Support passing in the filename of the template
-  def exception(%{parsed_line: parsed_line, terminator: terminator, starting: starting, starting_line: starting_line}) do
-    message = ~s[template:#{parsed_line}: missing terminator: #{inspect terminator} (for #{inspect starting} starting at line #{starting_line})]
-    %FuManchu.Lexer.TokenMissingError{message: message}
-  end
-end
-
-defmodule FuManchu.Lexer.TokenUnexpectedError do
-  defexception [:message]
-
-  # TODO: Support passing in the filename of the template
-  def exception(%{parsed_line: parsed_line, token: token}) do
-    message = ~s[template:#{parsed_line}: unexpected token: #{inspect token}]
-    %FuManchu.Lexer.TokenUnexpectedError{message: message}
-  end
-end
-
 defmodule FuManchu.Lexer do
   alias FuManchu.Lexer.TokenMissingError
   alias FuManchu.Lexer.TokenUnexpectedError

@@ -1,6 +1,7 @@
 defmodule FuManchu.Lexer do
   alias FuManchu.Lexer.TokenMissingError
   alias FuManchu.Lexer.TokenUnexpectedError
+  require Logger
 
   def scan(bin) when is_binary(bin) do
     scan(String.to_char_list(bin))
@@ -18,7 +19,7 @@ defmodule FuManchu.Lexer do
   defp scan('{{{' ++ t, buffer, acc, line) do
     acc = append_text(buffer, acc, line)
 
-    case scan_tag(t, [], line) do
+    case scan_unescaped_tag(t, [], line) do
       {:error, %{rest: []}=opts} ->
         opts = Map.merge(opts, %{terminator: "}}}", starting: "{{{", starting_line: line})
         {:error, TokenMissingError.exception(opts)}
@@ -62,13 +63,11 @@ defmodule FuManchu.Lexer do
     Enum.reverse(acc)
   end
 
-  defp scan_tag('}}}' ++ t, acc, line) do
-    key = acc |> Enum.reverse |> to_string |> String.strip
-
-    {{:unescaped_variable, key, line}, t}
-  end
-
   defp scan_tag('}}' ++ t, acc, line) do
+    if match?('}' ++ _, t) do
+      Logger.warn(~s[template:#{line}: tag end mismatched: "}}}"])
+    end
+
     key = acc |> Enum.reverse |> List.flatten
 
     {type, key} = case key do
@@ -113,6 +112,40 @@ defmodule FuManchu.Lexer do
   end
 
   defp scan_tag([], _acc, line) do
+    {:error, %{parsed_line: line, rest: []}}
+  end
+
+  defp scan_unescaped_tag('}}}' ++ t, acc, line) do
+    key = acc |> Enum.reverse |> to_string |> String.strip
+
+    {{:unescaped_variable, key, line}, t}
+  end
+
+  defp scan_unescaped_tag('}}' ++ t, _acc, line) do
+    {:error, %{parsed_line: line, token: "}}", rest: t}}
+  end
+
+  defp scan_unescaped_tag('{{{' ++ t, _acc, line) do
+    {:error, %{parsed_line: line, token: "{{{", rest: t}}
+  end
+
+  defp scan_unescaped_tag('{{' ++ t, _acc, line) do
+    {:error, %{parsed_line: line, token: "{{", rest: t}}
+  end
+
+  defp scan_unescaped_tag('\r\n' ++ t, acc, line) do
+    scan_unescaped_tag(t, acc, line + 1)
+  end
+
+  defp scan_unescaped_tag('\n' ++ t, acc, line) do
+    scan_unescaped_tag(t, acc, line + 1)
+  end
+
+  defp scan_unescaped_tag([h|t], acc, line) do
+    scan_unescaped_tag(t, [h|acc], line)
+  end
+
+  defp scan_unescaped_tag([], _acc, line) do
     {:error, %{parsed_line: line, rest: []}}
   end
 

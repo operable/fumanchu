@@ -4,7 +4,7 @@ defmodule FuManchu.Generator do
 
   @type quoted :: any
 
-  @spec generate(Parser.ast | Parser.ast_node) :: quoted
+  @spec generate(Parser.ast | Parser.ast_node) :: {:ok, quoted} | {:error, any}
   def generate(children) when is_list(children) do
     case generate_children(children) do
       {:error, error} ->

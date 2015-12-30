@@ -3,7 +3,9 @@ defmodule FuManchu.Compiler do
   alias FuManchu.Parser
   alias FuManchu.Generator
 
-  @spec compile!(String.t) :: (map -> String.t)
+  @type compiled_template :: (map -> String.t)
+
+  @spec compile!(String.t) :: compiled_template | no_return
   def compile!(source) do
     source
     |> scan

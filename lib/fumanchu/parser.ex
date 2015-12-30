@@ -16,6 +16,16 @@ defmodule FuManchu.Parser do
   @type ast_node :: simple_node | partial_node | section_node
   @type ast :: [ast_node, ...]
 
+  @doc """
+  Parses a list of tokens producing an AST. The lexer handles creating tokens
+  for things like variables, section beginnings and section ends. So, most of
+  the work here is to collapse whitespace, group sections, and remove comments.
+
+  When parsing we temporarily append whitespace markers to the beginning and
+  end of the token list to simplify whitespace rules around template
+  boundaries.
+  """
+
   @spec parse(Lexer.tokens) :: {:ok, ast} | {:error, any}
   def parse(tokens) do
     case parse([@marker_begin] ++ tokens ++ [@marker_end], []) do

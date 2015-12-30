@@ -36,7 +36,7 @@ defmodule FuManchu.SpecTest do
       @tag optional: optional
 
       test "#{name} - #{desc} - #{index}" do
-        actual = FuManchu.render(unquote(template), unquote(data), unquote(partials))
+        actual = FuManchu.render!(unquote(template), unquote(data), unquote(partials))
         assert actual == unquote(expected)
       end
     end

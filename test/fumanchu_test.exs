@@ -5,7 +5,7 @@ defmodule FuManchuTest do
   doctest FuManchu
 
   test "render a template with context" do
-    result = FuManchu.render("Hello {{planet}}", %{planet: "World!"})
+    result = FuManchu.render!("Hello {{planet}}", %{planet: "World!"})
 
     assert result == "Hello World!"
   end
@@ -21,7 +21,7 @@ defmodule FuManchuTest do
     Try calling `operable:help COMMAND` to find out more.
     """
 
-    result = FuManchu.render(template, %{commands: ["operable:help", "operable:echo"]})
+    result = FuManchu.render!(template, %{commands: ["operable:help", "operable:echo"]})
 
     assert result == """
     I know about these commands:
@@ -45,7 +45,7 @@ defmodule FuManchuTest do
     """
 
     assert_raise TokenUnexpectedError, ~s[template:5: unexpected token: "{{"], fn ->
-      FuManchu.render(template, %{commands: ["operable:help", "operable:echo"]})
+      FuManchu.render!(template, %{commands: ["operable:help", "operable:echo"]})
     end
   end
 end

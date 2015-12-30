@@ -3,7 +3,7 @@ defmodule FuManchu.Compiler do
   alias FuManchu.Parser
   alias FuManchu.Generator
 
-  def compile(source) do
+  def compile!(source) do
     source
     |> scan
     |> parse

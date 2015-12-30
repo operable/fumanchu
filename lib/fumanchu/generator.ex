@@ -115,7 +115,7 @@ defmodule FuManchu.Generator do
         |> Enum.map(&(unquote(indent) <> &1))
         |> Enum.join("\n")
 
-        FuManchu.render(source, context, partials)
+        FuManchu.render!(source, context, partials)
       end.(context)
     end
   end

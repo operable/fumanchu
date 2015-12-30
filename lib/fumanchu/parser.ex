@@ -1,4 +1,5 @@
 defmodule FuManchu.Parser do
+  alias FuManchu.Lexer
   alias FuManchu.Parser.TokenMissingError
   alias FuManchu.Parser.TokenUnrecognizedError
 
@@ -7,6 +8,15 @@ defmodule FuManchu.Parser do
   @marker_begin {:newline, "\n", 0, 0}
   @marker_end   {:newline, "\n", -1, 0}
 
+  @type line :: pos_integer
+  @type column :: non_neg_integer
+  @type simple_node  :: {Atom, String.t, line, column}
+  @type partial_node :: {Atom, String.t, line, column, String.t}
+  @type section_node :: {Atom, String.t, line, column, [ast_node, ...]}
+  @type ast_node :: simple_node | partial_node | section_node
+  @type ast :: [ast_node, ...]
+
+  @spec parse(Lexer.tokens) :: {:ok, ast} | {:error, any}
   def parse(tokens) do
     case parse([@marker_begin] ++ tokens ++ [@marker_end], []) do
       {:error, error} ->

@@ -3,6 +3,12 @@ defmodule FuManchu.Lexer do
   alias FuManchu.Lexer.TokenUnexpectedError
   require Logger
 
+  @type line :: pos_integer
+  @type column :: non_neg_integer
+  @type token :: {Atom, String.t, line, column}
+  @type tokens :: [token, ...]
+
+  @spec scan(String.t | char_list) :: {:ok, tokens} | {:error, any}
   def scan(bin) when is_binary(bin) do
     scan(String.to_char_list(bin))
   end

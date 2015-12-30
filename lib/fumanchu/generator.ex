@@ -14,6 +14,8 @@ defmodule FuManchu.Generator do
           fn %{context: context, partials: partials} ->
             import FuManchu.Util
 
+            partials = stringify_keys(partials)
+
             fn context ->
               Enum.join(unquote(children))
             end.(stringify_keys(context))

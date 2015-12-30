@@ -20,12 +20,12 @@ defmodule FuManchu.Generator do
     end
   end
 
-  def generate({type, text, _line})
+  def generate({type, text, _line, _col})
       when type in [:text, :whitespace, :newline] do
     text
   end
 
-  def generate({:variable, variable, _line}) do
+  def generate({:variable, variable, _line, _col}) do
     quote do
       context
       |> access(unquote(variable))
@@ -34,7 +34,7 @@ defmodule FuManchu.Generator do
     end
   end
 
-  def generate({:unescaped_variable, variable, _line}) do
+  def generate({:unescaped_variable, variable, _line, _col}) do
     quote do
       context
       |> access(unquote(variable))
@@ -42,7 +42,7 @@ defmodule FuManchu.Generator do
     end
   end
 
-  def generate({:section, name, _line, children}) do
+  def generate({:section, name, _line, _col, children}) do
     case generate_children(children) do
       {:error, error} ->
         {:error, error}
@@ -73,7 +73,7 @@ defmodule FuManchu.Generator do
     end
   end
 
-  def generate({:inverted_section, name, _line, children}) do
+  def generate({:inverted_section, name, _line, _col, children}) do
     case generate_children(children) do
       {:error, error} ->
         {:error, error}
@@ -102,11 +102,11 @@ defmodule FuManchu.Generator do
     end
   end
 
-  def generate({:partial, name, line}) do
-    generate({:partial, name, line, ""})
+  def generate({:partial, name, line, col}) do
+    generate({:partial, name, line, col, ""})
   end
 
-  def generate({:partial, name, _line, indent}) do
+  def generate({:partial, name, _line, _col, indent}) do
     quote do
       fn context ->
         source = partials
@@ -120,8 +120,8 @@ defmodule FuManchu.Generator do
     end
   end
 
-  def generate({name, _, line}) do
-    {:error, ASTNodeUnrecognizedError.exception(%{node_name: name, line: line})}
+  def generate({name, _, line, col}) do
+    {:error, ASTNodeUnrecognizedError.exception(%{node_name: name, line: line, col: col})}
   end
 
   defp generate_children(children) when is_list(children) do

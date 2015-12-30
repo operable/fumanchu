@@ -12,25 +12,25 @@ defmodule FuManchu.LexerTest do
     {{/in_ca}}
     """
 
-    tokens = [{:text, "Hello ", 1},
-              {:variable, "name", 1},
-              {:newline, "\n", 1},
+    tokens = [{:text, "Hello ", 1, 0},
+              {:variable, "name", 1, 6},
+              {:newline, "\n", 1, 14},
 
-              {:text, "You have just won ", 2},
-              {:variable, "value", 2},
-              {:text, " dollars!", 2},
-              {:newline, "\n", 2},
+              {:text, "You have just won ", 2, 0},
+              {:variable, "value", 2, 18},
+              {:text, " dollars!", 2, 27},
+              {:newline, "\n", 2, 36},
 
-              {:section_begin, "in_ca", 3},
-              {:newline, "\n", 3},
+              {:section_begin, "in_ca", 3, 0},
+              {:newline, "\n", 3, 10},
 
-              {:text, "Well, ", 4},
-              {:variable, "taxed_value", 4},
-              {:text, " dollars, after taxes.", 4},
-              {:newline, "\n", 4},
+              {:text, "Well, ", 4, 0},
+              {:variable, "taxed_value", 4, 6},
+              {:text, " dollars, after taxes.", 4, 21},
+              {:newline, "\n", 4, 43},
 
-              {:section_end, "in_ca", 5},
-              {:newline, "\n", 5}]
+              {:section_end, "in_ca", 5, 0},
+              {:newline, "\n", 5, 10}]
 
     assert Lexer.scan(template) == {:ok, tokens}
   end
@@ -43,21 +43,21 @@ defmodule FuManchu.LexerTest do
     * {{{company}}}
     """
 
-    tokens = [{:text, "* ", 1},
-              {:variable, "name", 1},
-              {:newline, "\n", 1},
+    tokens = [{:text, "* ", 1, 0},
+              {:variable, "name", 1, 2},
+              {:newline, "\n", 1, 10},
 
-              {:text, "* ", 2},
-              {:variable, "age", 2},
-              {:newline, "\n", 2},
+              {:text, "* ", 2, 0},
+              {:variable, "age", 2, 2},
+              {:newline, "\n", 2, 9},
 
-              {:text, "* ", 3},
-              {:variable, "company", 3},
-              {:newline, "\n", 3},
+              {:text, "* ", 3, 0},
+              {:variable, "company", 3, 2},
+              {:newline, "\n", 3, 13},
 
-              {:text, "* ", 4},
-              {:unescaped_variable, "company", 4},
-              {:newline, "\n", 4}]
+              {:text, "* ", 4, 0},
+              {:unescaped_variable, "company", 4, 2},
+              {:newline, "\n", 4, 15}]
 
     assert Lexer.scan(template) == {:ok, tokens}
   end
@@ -69,9 +69,9 @@ defmodule FuManchu.LexerTest do
     }}
     """
 
-    tokens = [{:text, "What's for dinner? ", 1},
-              {:comment, "Please say lasagna.", 1},
-              {:newline, "\n", 3}]
+    tokens = [{:text, "What's for dinner? ", 1, 0},
+              {:comment, "Please say lasagna.", 1, 19},
+              {:newline, "\n", 3, 2}]
 
     assert Lexer.scan(template) == {:ok, tokens}
   end
@@ -82,7 +82,7 @@ defmodule FuManchu.LexerTest do
     Please say lasagna.
     """
 
-    error = %Lexer.TokenMissingError{message: ~s[template:3: missing terminator: "}}" (for "{{" starting at line 1)]}
+    error = %Lexer.TokenMissingError{message: ~s[template:3:0: missing terminator: "}}" (for "{{" starting at line 1, column 19)]}
 
     assert Lexer.scan(template) == {:error, error}
   end
@@ -94,7 +94,7 @@ defmodule FuManchu.LexerTest do
     {{
     """
 
-    error = %Lexer.TokenUnexpectedError{message: ~s[template:3: unexpected token: "{{"]}
+    error = %Lexer.TokenUnexpectedError{message: ~s[template:3:0: unexpected token: "{{"]}
 
     assert Lexer.scan(template) == {:error, error}
   end
@@ -104,7 +104,7 @@ defmodule FuManchu.LexerTest do
     What's for dinner? {{{food}}
     """
 
-    error = %Lexer.TokenUnexpectedError{message: ~s[template:1: unexpected token: "}}"]}
+    error = %Lexer.TokenUnexpectedError{message: ~s[template:1:26: unexpected token: "}}"]}
 
     assert Lexer.scan(template) == {:error, error}
   end
@@ -118,6 +118,6 @@ defmodule FuManchu.LexerTest do
       Lexer.scan(template)
     end)
 
-    assert warning =~ ~s[template:1: tag end mismatched: "}}}"]
+    assert warning =~ ~s[template:1:25: tag end mismatched: "}}}"]
   end
 end

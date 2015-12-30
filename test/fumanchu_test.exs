@@ -44,7 +44,7 @@ defmodule FuManchuTest do
     Try calling `operable:help COMMAND` to find out more.
     """
 
-    assert_raise TokenUnexpectedError, ~s[template:5: unexpected token: "{{"], fn ->
+    assert_raise TokenUnexpectedError, ~s[template:5:0: unexpected token: "{{"], fn ->
       FuManchu.render!(template, %{commands: ["operable:help", "operable:echo"]})
     end
   end

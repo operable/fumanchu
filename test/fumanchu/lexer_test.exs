@@ -1,5 +1,6 @@
 defmodule FuManchu.LexerTest do
   use ExUnit.Case, async: true
+  import ExUnit.CaptureLog
   alias FuManchu.Lexer
 
   test "scans a typical template" do
@@ -73,5 +74,50 @@ defmodule FuManchu.LexerTest do
               {:newline, "\n", 3}]
 
     assert Lexer.scan(template) == {:ok, tokens}
+  end
+
+  test "raises error for missing tag end" do
+    template = """
+    What's for dinner? {{!
+    Please say lasagna.
+    """
+
+    error = %Lexer.TokenMissingError{message: ~s[template:3: missing terminator: "}}" (for "{{" starting at line 1)]}
+
+    assert Lexer.scan(template) == {:error, error}
+  end
+
+  test "raises error for unexpected tag begin" do
+    template = """
+    What's for dinner? {{!
+    Please say lasagna.
+    {{
+    """
+
+    error = %Lexer.TokenUnexpectedError{message: ~s[template:3: unexpected token: "{{"]}
+
+    assert Lexer.scan(template) == {:error, error}
+  end
+
+  test "raises error for unexpected escaped tag begin" do
+    template = """
+    What's for dinner? {{{food}}
+    """
+
+    error = %Lexer.TokenUnexpectedError{message: ~s[template:1: unexpected token: "}}"]}
+
+    assert Lexer.scan(template) == {:error, error}
+  end
+
+  test "warns for mismatched tag end" do
+    template = """
+    What's for dinner? {{food}}}
+    """
+
+    warning = capture_log(fn ->
+      Lexer.scan(template)
+    end)
+
+    assert warning =~ ~s[template:1: tag end mismatched: "}}}"]
   end
 end

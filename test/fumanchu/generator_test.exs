@@ -3,22 +3,22 @@ defmodule FuManchu.GeneratorTest do
   alias FuManchu.Generator
 
   test "generating text" do
-    quoted_fun = Generator.generate([{:text, "Hello World!", 1}])
+    {:ok, quoted_fun} = Generator.generate([{:text, "Hello World!", 1}])
     {fun, []} = Code.eval_quoted(quoted_fun)
     assert fun.(%{context: %{}, partials: %{}}) == "Hello World!"
   end
 
   test "generating a variable" do
-    quoted_fun = Generator.generate([{:text, "Hello ", 1}, {:variable, ["planet"], 1}])
+    {:ok, quoted_fun} = Generator.generate([{:text, "Hello ", 1}, {:variable, "planet", 1}])
     {fun, []} = Code.eval_quoted(quoted_fun)
     assert fun.(%{context: %{planet: "World!"}, partials: %{}}) == "Hello World!"
   end
 
   test "generating a section containing a variable" do
-    quoted_fun = Generator.generate([{:section, ["repo"], 3, [
+    {:ok, quoted_fun} = Generator.generate([{:section, "repo", 3, [
                                        {:text, "\n  ", 1},
                                        {:text, "<b>", 2},
-                                       {:section, ["name"], 2, [
+                                       {:section, "name", 2, [
                                          {:text, "fumanchu", 2}]},
                                        {:text, "</b>\n", 2}]},
                                      {:text, "\n", 3}])
@@ -29,7 +29,7 @@ defmodule FuManchu.GeneratorTest do
   end
 
   test "generating a section used for iteration" do
-    quoted_fun = Generator.generate([{:section, ["commands"], 1, [
+    {:ok, quoted_fun} = Generator.generate([{:section, "commands", 1, [
                                        {:variable, ".", 1},
                                        {:text, "\n", 1}]}])
     {fun, []} = Code.eval_quoted(quoted_fun)
@@ -40,11 +40,22 @@ defmodule FuManchu.GeneratorTest do
   end
 
   test "generating a section used for iteration by key" do
-    quoted_fun = Generator.generate([{:text, "\"", 1},
-                                     {:section, ["list"], 1, [
-                                       {:variable, ["item"], 1}]},
+    {:ok, quoted_fun} = Generator.generate([{:text, "\"", 1},
+                                     {:section, "list", 1, [
+                                       {:variable, "item", 1}]},
                                      {:text, "\"", 1}])
     {fun, []} = Code.eval_quoted(quoted_fun)
     assert fun.(%{context: %{list: [%{item: 1}, %{item: 2}, %{item: 3}]}, partials: %{}}) == "\"123\""
+  end
+
+  test "generating code for an unknown ast" do
+    ast = [{:text, "What's for dinner?", 1},
+           {:newline, "\n", 1},
+           {:section, "is_lasagna", 2, [
+             {:wut, "wut", 2}]}]
+
+    error = %Generator.ASTNodeUnrecognizedError{message: ~s[template:2: unrecognized ast node: :wut]}
+
+    assert Generator.generate(ast) == {:error, error}
   end
 end

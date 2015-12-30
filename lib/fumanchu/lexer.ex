@@ -10,10 +10,10 @@ defmodule FuManchu.Lexer do
 
   @doc """
   Converts a template string into a list of tokens. Since this is a lexer and
-  not just a tokenizer, we do a little bit of extra work to group tags
+  not just a tokenizer, we do a little bit of extra work to group tag
   beginnings and endings into a single token of a specific type. Source line
-  numbers and comments are also included for referencing in errors and warnings
-  in the parser and generator.
+  numbers and comments are also included with each token for use in errors and
+  warnings emitted by the parser and generator.
   """
 
   @spec scan(String.t | char_list) :: {:ok, tokens} | {:error, any}

@@ -9,8 +9,8 @@ defmodule FuManchu do
   be accessed like `{{variable}}`. Nested context can be used by wrapping part
   of the template in a section: `{{#users}} Name: {{name}} {{/users}}`. The
   entire context will still be available in nested sections, but keys from the
-  current level of nesting will take precedence.  If a bare list is passed in,
-  you must use `{{#.}}{{/.}}` to iterate over the list.
+  current level of nesting will take precedence. If a bare list is passed in,
+  you must use `{{#.}}{{/.}}` to iterate over it.
 
       iex> FuManchu.render!("Hello {{planet}}", %{planet: "World!"})
       "Hello World!"
@@ -20,9 +20,9 @@ defmodule FuManchu do
       "My favorite colors: red blue green"
 
   Partials are passed in as a map with names as keys and template strings as
-  values and can be called like `{{> partial}}`. The current context and the
-  map of partials are used when rendering each partial template, so recurring
-  partials are possible.
+  values and can be called like `{{> partial}}`. The current context and map of
+  partials are used when rendering each template, so recurring partials are
+  possible.
 
       iex> FuManchu.render!("My favorite colors:{{#colors}} {{> display}}{{/colors}}",
       iex>                  %{colors: [%{name: "red", hex: "#ff0000"}, %{name: "blue", hex: "#0000ff"}]},

@@ -6,16 +6,16 @@ defmodule FuManchu.Generator do
 
   @doc """
   Generates a quoted anonymous function from the given ast, typically created
-  by the parser and handled off to the compiler and evaled when rendering a
+  by the parser and handled off to the compiler to be evaled when rendering a
   template. Any Errors encountured while generating are returned as `{:error, error}`.
 
-  The `generate/1` function is called recursively as we "walk" the AST. Each node
-  is converted into it's representation of Elixir code, resulting in a final
-  anonymous function that takes context and partials as arguments and returns
-  the rendered template. In most cases we generate an IIFE, immediately-invoked
-  function expression, for each node with changes to the current context.
-  Before returning, expressions from sibling nodes are concatenated together
-  forming the final rendering of the template.
+  The `generate/1` function is called recursively as we "walk" the AST. Each
+  node is converted into its representation of Elixir code, resulting in a
+  final anonymous function that takes context and partials as arguments and
+  returns the rendered template. For most AST nodes, we generate an IIFE,
+  immediately-invoked function expression, and call it with the newly modified
+  context.  Before returning, expressions from sibling nodes are concatenated
+  together forming the final rendering of the template.
   """
 
   @spec generate(Parser.ast | Parser.ast_node) :: {:ok, quoted} | {:error, any}

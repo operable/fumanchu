@@ -40,7 +40,7 @@ defmodule FuManchu.Compiler do
     raise error
   end
 
-  defp check_fun({fun, []}) do
+  defp check_fun({fun, []}) when is_function(fun, 1) do
     fun
   end
 

@@ -5,6 +5,13 @@ defmodule FuManchu.Compiler do
 
   @type compiled_template :: (map -> String.t)
 
+  @doc """
+  Runs a template through the lexer, parser and generator, evaling the
+  resulting quoted expression. The resulting function is checked and returned.
+  If any steps result in an error, compilation is halted and the error is
+  raised.
+  """
+
   @spec compile!(String.t) :: compiled_template | no_return
   def compile!(source) do
     source

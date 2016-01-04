@@ -8,6 +8,14 @@ defmodule FuManchu.Lexer do
   @type token :: {Atom, String.t, line, column}
   @type tokens :: [token, ...]
 
+  @doc """
+  Converts a template string into a list of tokens. Since this is a lexer and
+  not just a tokenizer, we do a little bit of extra work to group tag
+  beginnings and endings into a single token of a specific type. Source line
+  numbers and comments are also included with each token for use in errors and
+  warnings emitted by the parser and generator.
+  """
+
   @spec scan(String.t | char_list) :: {:ok, tokens} | {:error, any}
   def scan(bin) when is_binary(bin) do
     scan(String.to_char_list(bin))

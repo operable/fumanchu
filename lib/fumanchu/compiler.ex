@@ -12,14 +12,24 @@ defmodule FuManchu.Compiler do
   raised.
   """
 
-  @spec compile!(String.t) :: compiled_template | no_return
-  def compile!(source) do
+  @spec compile(String.t) :: {:ok, compiled_template} | {:error, any}
+  def compile(source) do
     source
     |> scan
     |> parse
     |> generate
     |> eval
     |> check_fun
+  end
+
+  @spec compile!(String.t) :: compiled_template | no_return
+  def compile!(source) do
+    case compile(source) do
+      {:ok, fun} ->
+        fun
+      {:error, error} ->
+        raise error
+    end
   end
 
   defp scan(source) do
@@ -31,7 +41,7 @@ defmodule FuManchu.Compiler do
   end
 
   defp parse({:error, error}) do
-    raise error
+    {:error, error}
   end
 
   defp generate({:ok, ast}) do
@@ -39,7 +49,7 @@ defmodule FuManchu.Compiler do
   end
 
   defp generate({:error, error}) do
-    raise error
+    {:error, error}
   end
 
   defp eval({:ok, quoted_fun}) do
@@ -47,14 +57,18 @@ defmodule FuManchu.Compiler do
   end
 
   defp eval({:error, error}) do
-    raise error
+    {:error, error}
   end
 
   defp check_fun({fun, []}) when is_function(fun, 1) do
-    fun
+    {:ok, fun}
+  end
+
+  defp check_fun({:error, error}) do
+    {:error, error}
   end
 
   defp check_fun(_) do
-    raise "We didn't get a function like we expected; there's probably a bug in the generator."
+    {:error, "We didn't get a function like we expected; there's probably a bug in the generator."}
   end
 end

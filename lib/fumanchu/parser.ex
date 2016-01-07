@@ -45,6 +45,11 @@ defmodule FuManchu.Parser do
     parse(t, [newline|acc])
   end
 
+  defp parse([{:newline, _, _, _}=newline, {type1, _, _, _}=tag1, {:newline, _, _, _}, {type2, _, _, _}=tag2, {:newline, _, _, _}|t], acc)
+      when type1 in @collapsible_tags and type2 in @collapsible_tags do
+    parse([tag1, tag2|t], [newline|acc])
+  end
+
   defp parse([{:newline, _, _, _}=newline, {type, _, _, _}=tag, {:newline, _, _, _}|t], acc)
       when type in @collapsible_tags do
     parse([tag|t], [newline|acc])

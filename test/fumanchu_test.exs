@@ -52,7 +52,6 @@ defmodule FuManchuTest do
     result = FuManchu.render!(template, %{})
 
     assert result == """
-
       Oops. Your command could not be found.
     """
   end

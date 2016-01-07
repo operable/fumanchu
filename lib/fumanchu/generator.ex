@@ -83,19 +83,17 @@ defmodule FuManchu.Generator do
           name = unquote(name)
           value = access(context, name, false)
 
-          case value do
+          case truthy(value) do
             false ->
               ""
-            true ->
-              render.(context)
             map when is_map(map) ->
               render.(Map.merge(context, map))
-            [] ->
-              ""
             list when is_list(list) ->
               Enum.map(list, fn item ->
                 render.(item)
               end)
+            _ ->
+              render.(context)
           end
         end
     end
@@ -116,17 +114,11 @@ defmodule FuManchu.Generator do
           name = unquote(name)
           value = access(context, name, false)
 
-          case value do
-            false ->
-              render.(context)
+          case falsy(value) do
             true ->
               ""
-            map when is_map(map) ->
-              ""
-            [] ->
+            _ ->
               render.(context)
-            list when is_list(list) ->
-              ""
           end
         end
     end

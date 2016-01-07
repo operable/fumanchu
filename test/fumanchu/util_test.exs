@@ -47,4 +47,22 @@ defmodule FuManchu.UtilTest do
   test "access with a dotted string key" do
     assert Util.access(%{"a" => %{"b" => "c"}}, "a.b") == "c"
   end
+
+  test "truthy returns truthy value or false" do
+    assert Util.truthy(true) == true
+    assert Util.truthy(%{a: 1}) == %{a: 1}
+    assert Util.truthy("test") == "test"
+    assert Util.truthy(false) == false
+    assert Util.truthy(nil) == false
+    assert Util.truthy([]) == false
+  end
+
+  test "falsy returns falsy value or true" do
+    assert Util.falsy(true) == true
+    assert Util.falsy(%{a: 1}) == true
+    assert Util.falsy("test") == true
+    assert Util.falsy(false) == false
+    assert Util.falsy(nil) == nil
+    assert Util.falsy([]) == []
+  end
 end

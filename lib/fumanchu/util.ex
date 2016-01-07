@@ -51,4 +51,14 @@ defmodule FuManchu.Util do
     do: access(Map.get(context, h, default), t, default)
   def access(_, _, default),
     do: default
+
+  def truthy([]),
+    do: false
+  def truthy(value),
+    do: value || false
+
+  def falsy([]),
+    do: []
+  def falsy(value),
+    do: value && true
 end

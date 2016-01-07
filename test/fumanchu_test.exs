@@ -33,6 +33,30 @@ defmodule FuManchuTest do
     """
   end
 
+  test "render a template with a section followed by an inverse section" do
+    template = """
+    {{#command}}
+      Your command is "{{command}}".
+    {{/command}}
+    {{^command}}
+      Oops. Your command could not be found.
+    {{/command}}
+    """
+
+    result = FuManchu.render!(template, %{command: "help"})
+
+    assert result == """
+      Your command is "help".
+    """
+
+    result = FuManchu.render!(template, %{})
+
+    assert result == """
+
+      Oops. Your command could not be found.
+    """
+  end
+
   test "raises an error if the template couldn't be compiled" do
     template = """
     I know about these commands:

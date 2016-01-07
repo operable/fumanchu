@@ -5,6 +5,7 @@ defmodule FuManchu.Parser do
 
   @collapsible_tags [:section_begin, :inverted_section_begin, :section_end, :comment, :partial]
   @passthrough_tokens [:variable, :unescaped_variable, :partial, :text, :newline, :whitespace]
+  @extended_tokens [:section, :inverted_section, :partial]
   @marker_begin {:newline, "\n", 0, 0}
   @marker_end   {:newline, "\n", -1, 0}
 
@@ -86,6 +87,11 @@ defmodule FuManchu.Parser do
 
   defp parse([{token, _, _, _}=h|t], acc)
       when token in @passthrough_tokens do
+    parse(t, [h|acc])
+  end
+
+  defp parse([{token, _, _, _, _}=h|t], acc)
+      when token in @extended_tokens do
     parse(t, [h|acc])
   end
 

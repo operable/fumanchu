@@ -6,3 +6,7 @@
 iex(1)> FuManchu.render("Hello {{planet}}", %{planet: "World!"})
 "Hello World!"
 ```
+
+## Filing Issues
+
+FuManchu issues are tracked centrally in [Cog's](https://github.com/operable/cog/issues) issue tracker.

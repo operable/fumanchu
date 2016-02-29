@@ -1,4 +1,7 @@
 defmodule FuManchu.Util do
+  def stringify_keys(nil) do
+    stringify_value(nil)
+  end
   def stringify_keys(map) when is_map(map) do
     for {k, v} <- map, into: %{},
       do: {stringify_key(k), stringify_value(v)}

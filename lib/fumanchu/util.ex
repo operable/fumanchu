@@ -5,6 +5,8 @@ defmodule FuManchu.Util do
   end
   def stringify_keys(list) when is_list(list),
     do: stringify_value(list)
+  def stringify_keys(scalar),
+    do: scalar
 
   defp stringify_key(atom) when is_atom(atom),
     do: Atom.to_string(atom)

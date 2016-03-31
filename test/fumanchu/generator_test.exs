@@ -59,4 +59,11 @@ defmodule FuManchu.GeneratorTest do
 
     assert Generator.generate(ast) == {:error, error}
   end
+
+  test "generating a function partial" do
+    {:ok, quoted_fun} = Generator.generate([{:partial, "upcase", 1, 0, ""}])
+    {fun, []} = Code.eval_quoted(quoted_fun)
+    assert fun.(%{context: "cheeseburgers", partials: %{upcase: &String.upcase/1}}) == "CHEESEBURGERS"
+  end
+
 end

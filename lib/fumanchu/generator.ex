@@ -134,13 +134,20 @@ defmodule FuManchu.Generator do
   def generate({:partial, name, _line, _col, indent}) do
     quote do
       fn context ->
-        source = partials
-        |> Map.get(unquote(name), "")
-        |> String.split("\n")
-        |> Enum.map(&(unquote(indent) <> &1))
-        |> Enum.join("\n")
+        partial = Map.get(partials, unquote(name), "")
 
-        FuManchu.render!(source, context, partials)
+        case partial do
+          partial when is_binary(partial) ->
+            partial
+            |> String.split("\n")
+            |> Enum.map(&(unquote(indent) <> &1))
+            |> Enum.join("\n")
+            |> FuManchu.render!(context, partials)
+          partial when is_function(partial) ->
+            # This case is currently undocumented and considered experimental
+            # as it is not defined in the spec.
+            partial.(context)
+        end
       end.(context)
     end
   end

@@ -146,7 +146,7 @@ defmodule FuManchu.Generator do
           partial when is_function(partial) ->
             # This case is currently undocumented and considered experimental
             # as it is not defined in the spec.
-            partial.(context) <> "\n"
+            partial.(context)
         end
       end.(context)
     end

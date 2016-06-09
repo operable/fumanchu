@@ -3,7 +3,7 @@ defmodule FuManchu.Mixfile do
 
   def project do
     [app: :fumanchu,
-     version: "0.7.0",
+     version: "0.7.5",
      elixir: "~> 1.2",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,

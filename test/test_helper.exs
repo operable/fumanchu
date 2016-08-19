@@ -1,1 +1,1 @@
-ExUnit.start(exclude: [type: "delimiters", optional: true])
+ExUnit.start(exclude: [mustache_spec: "delimiters", optional: true])

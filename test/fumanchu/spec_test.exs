@@ -29,10 +29,10 @@ defmodule FuManchu.SpecTest do
       data = Macro.escape(data)
 
       basename = Path.basename(spec_path, ".json")
-      type = String.lstrip(basename, ?~)
+      mustache_spec = String.lstrip(basename, ?~)
       optional = String.starts_with?(basename, "~")
 
-      @tag type: type
+      @tag mustache_spec: mustache_spec
       @tag optional: optional
 
       test "#{name} - #{desc} - #{index}" do

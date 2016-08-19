@@ -4,7 +4,7 @@ defmodule FuManchu.Mixfile do
   def project do
     [app: :fumanchu,
      version: "0.13.0",
-     elixir: "~> 1.2",
+     elixir: "~> 1.3.1",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps,
@@ -16,6 +16,6 @@ defmodule FuManchu.Mixfile do
   end
 
   defp deps do
-    [{:poison, "~> 1.5.0", only: :test}]
+    [{:poison, "~> 2.0", only: :test}]
   end
 end

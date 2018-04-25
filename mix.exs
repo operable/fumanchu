@@ -8,7 +8,8 @@ defmodule FuManchu.Mixfile do
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps,
-     description: "An (almost) spec-compliant Mustache parser written in Elixir"]
+     description: "An (almost) spec-compliant Mustache parser written in Elixir",
+     source_url: "https://github.com/operable/fumanchu"]
   end
 
   def application do
